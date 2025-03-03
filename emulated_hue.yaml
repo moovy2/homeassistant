@@ -2,7 +2,7 @@
 ## Emulated Hue
 #################################################################
 
-  host_ip: REDACTED.240
+  host_ip: REDACTED.21
   listen_port: 80
   off_maps_to_on_domains:
     - script
@@ -15,7 +15,7 @@
     light.living_room_accent_lights:
       hidden: false
       name: "Remote LVNGRM"
-    switch.living_room_fans:
+    fan.living_room_fans:
       hidden: false
       name: "Remote LVNGRM Fans"
     light.living_room_fan_lights:

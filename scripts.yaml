@@ -3,25 +3,180 @@
 #################################################################
 
         ##########################################################
+        ## Party Time
+        ##########################################################
+
+party_time:
+  alias: "Party Time"
+  sequence:
+    - if:
+          - condition: not
+            conditions:
+            - condition: state
+              entity_id: sensor.season
+              state: 'summer'
+          - condition: numeric_state
+            entity_id: sensor.REDACTED_temperature
+            below: 50
+      then:
+          - action: homeassistant.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.livingroom_rainbow
+          - action: homeassistant.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.pop_music
+          - action: switch.turn_on
+            data: {}
+            target:
+             entity_id: switch.fireplace
+      else:
+          - action: homeassistant.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.livingroom_rainbow
+          - action: homeassistant.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.pop_music
+
+#################################################################
+## TV Remotes (Amazon Echo Workaround)
+#################################################################
+
+        ##########################################################
+        ## Living Room TV On
+        ##########################################################
+
+living_room_watch_tv:
+  alias: "Turn On TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.living_room_tv_activities
+      data:
+        option: "Watch TV"
+
+        ##########################################################
+        ## Living Room Xbox
+        ##########################################################
+
+living_room_play_xbox:
+  alias: "Turn On Xbox"
+  sequence:
+    - action: select.select_option
+      entity_id: select.living_room_tv_activities
+      data:
+        option: "Play Xbox"
+
+        ##########################################################
+        ## Living Room Nintendo Switch
+        ##########################################################
+
+living_room_play_nintendo_switch:
+  alias: "Turn On Switch"
+  sequence:
+    - action: select.select_option
+      entity_id: select.living_room_tv_activities
+      data:
+        option: "Play Nintendo Switch"
+
+        ##########################################################
+        ## Living Room TV Off
+        ##########################################################
+
+living_room_tv_off:
+  alias: "Turn Off TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.living_room_tv_activities
+      data:
+        option: "power_off"
+
+        ##########################################################
+        ## Bedroom TV On
+        ##########################################################
+
+bedroom_watch_tv:
+  alias: "Turn On Bedroom TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.bedroom_tv_activities
+      data:
+        option: "Watch TV"
+
+        ##########################################################
+        ## Bedroom TV Off
+        ##########################################################
+
+bedroom_tv_off:
+  alias: "Turn Off Bedroom TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.bedroom_tv_activities
+      data:
+        option: "power_off"
+
+        ##########################################################
+        ## USER1's Office TV On
+        ##########################################################
+
+USER1_office_watch_tv:
+  alias: "Turn On Office TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.USER1_s_office_tv_activities
+      data:
+        option: "Watch TV"
+
+        ##########################################################
+        ## USER1's Office TV Xbox
+        ##########################################################
+
+USER1_office_play_xbox:
+  alias: "Turn On Office Xbox"
+  sequence:
+    - action: select.select_option
+      entity_id: select.USER1_s_office_tv_activities
+      data:
+        option: "Play Xbox One"
+
+        ##########################################################
+        ## USER1's Office TV Off
+        ##########################################################
+
+USER1_office_tv_off:
+  alias: "Turn Off Office TV"
+  sequence:
+    - action: select.select_option
+      entity_id: select.USER1_s_office_tv_activities
+      data:
+        option: "power_off"
+
+#################################################################
+## Fan Light Dimmer
+#################################################################
+
+        ##########################################################
         ## Living Room Fan Light Dimmers
         ##########################################################
 
 living_room_fan_light_dimmer:
   alias: Living Room Fan Lights Dimmer Sequence
   sequence:
-    - service: switch.turn_on
+    - action: switch.turn_on
       entity_id:
         - switch.living_room_east_fan_dimmer
     - delay: '00:00:07'
-    - service: switch.turn_off
+    - action: switch.turn_off
       entity_id:
         - switch.living_room_east_fan_dimmer
     - delay: '00:00:05'
-    - service: switch.turn_on
+    - action: switch.turn_on
       entity_id:
         - switch.living_room_west_fan_dimmer
     - delay: '00:00:07'
-    - service: switch.turn_off
+    - action: switch.turn_off
       entity_id:
         - switch.living_room_west_fan_dimmer
 
@@ -32,70 +187,220 @@ living_room_fan_light_dimmer:
 living_room_west_fan_light_dimmer:
   alias: Living Room West Fan Lights Dimmer Sequence
   sequence:
-    - service: switch.turn_on
+    - action: switch.turn_on
       entity_id:
         - switch.living_room_west_fan_dimmer
     - delay: '00:00:07'
-    - service: switch.turn_off
+    - action: switch.turn_off
       entity_id:
         - switch.living_room_west_fan_dimmer
 
 #################################################################
-## Apple TV App Launch Scripts
+## Pihole
 #################################################################
 
         ##########################################################
-        ## Living Room Netflix
+        ## Pihole Disable
         ##########################################################
 
-living_room_launch_netflix:
-  alias: Living Room Launch Netflix
-  icon: mdi:netflix
+pihole_disable:
   sequence:
-    - service: media_player.select_source
-      target:
-        entity_id: media_player.living_room_apple_tv
+
+          ##########################################################
+          ## pihole-01
+          ##########################################################
+
+    - action: rest_command.pihole_login
       data:
-        source: "Netflix"
+        api_url: !secret pihole-01_api_url
+        password: !secret pihole_password
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-01_api_url
+        sid: "{{ sid }}"
+        blocking: "false"
+        timer: "1800" # can be "null" for permanent
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-01_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-02
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        api_url: !secret pihole-02_api_url
+        password: !secret pihole_password
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-02_api_url
+        sid: "{{ sid }}"
+        blocking: "false"
+        timer: "1800" # can be "null" for permanent
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-02_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-03
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        api_url: !secret pihole-03_api_url
+        password: !secret pihole_password
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-03_api_url
+        sid: "{{ sid }}"
+        blocking: "false"
+        timer: "1800" # can be "null" for permanent
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-03_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-04
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        api_url: !secret pihole-04_api_url
+        password: !secret pihole_password
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-04_api_url
+        sid: "{{ sid }}"
+        blocking: "false"
+        timer: "1800" # can be "null" for permanent
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-04_api_url
+        sid: "{{ sid }}"
 
         ##########################################################
-        ## Living Room Plex
+        ## Pihole Enable
         ##########################################################
 
-living_room_launch_plex:
-  alias: Living Room Launch Plex
-  icon: mdi:plex
+pihole_enable:
   sequence:
-    - service: media_player.select_source
-      target:
-        entity_id: media_player.living_room_apple_tv
+
+          ##########################################################
+          ## pihole-01
+          ##########################################################
+
+    - action: rest_command.pihole_login
       data:
-        source: "Plex"
-
-        ##########################################################
-        ## Living Room Disney+
-        ##########################################################
-
-living_room_launch_disney:
-  alias: "Living Room Launch Disney+"
-  icon: mdi:caREDACTEDe
-  sequence:
-    - service: media_player.select_source
-      target:
-        entity_id: media_player.living_room_apple_tv
+        password: !secret pihole_password
+        api_url: !secret pihole-01_api_url
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
       data:
-        source: "Disney+"
-
-        ##########################################################
-        ## Living Room Hulu
-        ##########################################################
-
-living_room_launch_hulu:
-  alias: "Living Room Launch Hulu"
-  icon: mdi:hulu
-  sequence:
-    - service: media_player.select_source
-      target:
-        entity_id: media_player.living_room_apple_tv
+        api_url: !secret pihole-01_api_url
+        sid: "{{ sid }}"
+        blocking: "true"
+        timer: "null"
+    - action: rest_command.pihole_logout
       data:
-        source: "Hulu"
+        api_url: !secret pihole-01_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-02
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        password: !secret pihole_password
+        api_url: !secret pihole-02_api_url
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-02_api_url
+        sid: "{{ sid }}"
+        blocking: "true"
+        timer: "null"
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-02_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-03
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        password: !secret pihole_password
+        api_url: !secret pihole-03_api_url
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-03_api_url
+        sid: "{{ sid }}"
+        blocking: "true"
+        timer: "null"
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-03_api_url
+        sid: "{{ sid }}"
+
+          ##########################################################
+          ## pihole-04
+          ##########################################################
+
+    - action: rest_command.pihole_login
+      data:
+        password: !secret pihole_password
+        api_url: !secret pihole-04_api_url
+      response_variable: response
+    - condition: template
+      value_template: "{{ response['status'] == 200 }}"
+    - variables:
+        sid: "{{ response['content']['session']['sid'] }}"
+    - action: rest_command.pihole_set_blocking
+      data:
+        api_url: !secret pihole-04_api_url
+        sid: "{{ sid }}"
+        blocking: "true"
+        timer: "null"
+    - action: rest_command.pihole_logout
+      data:
+        api_url: !secret pihole-04_api_url
+        sid: "{{ sid }}"

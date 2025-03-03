@@ -10,11 +10,11 @@
   id: 'energy_set_winter_rate_first_750'
 
   trigger:
-    - platform: state
+    - trigger: state
       entity_id: 
           - sensor.monthly_electric
 
-  condition:
+  conditions:
     - condition: template
       value_template: "{{ now().month in [1,2,3,4,5,10,11,12] }}"
     - condition: template
@@ -25,8 +25,8 @@
         entity_id: select.monthly_electric
         state: "Winter Rate First 750"
 
-  action:
-    - service: select.select_option
+  actions:
+    - action: select.select_option
       data:
         entity_id: select.monthly_electric
         option: "Winter Rate First 750"
@@ -39,11 +39,11 @@
   id: 'energy_set_winter_rate_over_750'
 
   trigger:
-    - platform: state
+    - trigger: state
       entity_id: 
           - sensor.monthly_electric
 
-  condition:
+  conditions:
     - condition: template
       value_template: "{{ now().month in [1,2,3,4,5,10,11,12] }}"
     - condition: template
@@ -54,8 +54,8 @@
         entity_id: select.monthly_electric
         state: "Winter Rate Over 750"
 
-  action:
-    - service: select.select_option
+  actions:
+    - action: select.select_option
       data:
         entity_id: select.monthly_electric
         option: "Winter Rate Over 750"
@@ -68,11 +68,11 @@
   id: 'energy_set_summer_rate'
 
   trigger:
-    - platform: state
+    - trigger: state
       entity_id: 
           - sensor.monthly_electric
 
-  condition:
+  conditions:
     - condition: template
       value_template: "{{ now().month in [6,7,8,9] }}"
     - condition: not
@@ -81,8 +81,8 @@
         entity_id: select.monthly_electric
         state: "Summer Rate"
 
-  action:
-    - service: select.select_option
+  actions:
+    - action: select.select_option
       data:
         entity_id: select.monthly_electric
         option: "Summer Rate"
@@ -95,22 +95,21 @@
   id: 'energy_turn_off_USER1_ebike_chargers_when_not_charging'
 
   trigger:
-    - platform: state
-      entity_id: 
-          - binary_sensor.USER1_bike_charger_state
-      to: 'off'
+    - trigger: numeric_state
+      entity_id: sensor.USER1s_bike_charger_current_consumption
+      below: 1
       for:
-        hours: 2
-        minutes: 0
+        hours: 0
+        minutes: 30
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: switch.USER1s_bike_charger
       state: 'on'
 
-  action:
-    - service: switch.turn_off
+  actions:
+    - action: switch.turn_off
       data:
         entity_id: switch.USER1s_bike_charger
 
@@ -122,21 +121,20 @@
   id: 'energy_turn_off_USER2_ebike_chargers_when_not_charging'
 
   trigger:
-    - platform: state
-      entity_id: 
-          - binary_sensor.USER2_bike_charger_state
-      to: 'off'
+    - trigger: numeric_state
+      entity_id: sensor.USER2s_bike_charger_current_consumption
+      below: 1
       for:
-        hours: 2
-        minutes: 0
+        hours: 0
+        minutes: 30
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: switch.USER2s_bike_charger
       state: 'on'
 
-  action:
-    - service: switch.turn_off
+  actions:
+    - action: switch.turn_off
       data:
         entity_id: switch.USER2s_bike_charger

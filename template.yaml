@@ -2,6 +2,30 @@
 ## Templates
 #################################################################
 
+       ##########################################################
+       ## Thermostat Out of Bounds
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: thermostat_out_of_bounds
+      name: "eco+ Enabled"
+      state: >
+        {% if is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='Upstairs' and state_attr('climate.main_floor', 'temperature')| int != 75 %}
+          on
+        {% elif is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='home' and state_attr('climate.main_floor', 'temperature')| int != 75 %}
+          on
+        {% elif is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='Guest' and state_attr('climate.main_floor', 'temperature')| int != 72 %}
+          on
+        {% elif is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='Downstairs' and state_attr('climate.main_floor', 'temperature')| int != 73 %}
+          on
+        {% elif is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='away_indefinitely' and state_attr('climate.main_floor', 'temperature')| int != 79 %}
+          on
+        {% elif is_state('climate.main_floor', 'cool') and state_attr('climate.main_floor', 'preset_mode') =='sleep' and state_attr('climate.main_floor', 'temperature')| int != 72 %}
+          on
+        {% else %}
+          off
+        {% endif %}
+    
       ##########################################################
       ## Electricity Rate
       ##########################################################
@@ -28,33 +52,33 @@
     - unique_id: hot_tub_mode
       name: Hot Tub Mode
       state: >
-        {% if states('sensor.hot_tub_watts') | float > 10300 %}
+        {% if states('sensor.hot_tub_watts') | float > 10000 %}
           CircPump-Blower-Pump1-Pump2-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 9700 %}
+        {% elif states('sensor.hot_tub_watts') | float > 9500 %}
           CircPump-Pump1-Pump2-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 8110 %}
+        {% elif states('sensor.hot_tub_watts') | float > 7900 %}
           CircPump-Blower-Pump1-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 7990 %}
+        {% elif states('sensor.hot_tub_watts') | float > 7790 %}
           CircPump-Blower-Pump2-Heat
         {% elif states('sensor.hot_tub_watts') | float > 7600 %}
           CircPump-Pump1-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 7500 %}
+        {% elif states('sensor.hot_tub_watts') | float > 7400 %}
           CircPump-Pump2-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 5650 %}
+        {% elif states('sensor.hot_tub_watts') | float > 5600 %}
           CircPump-Blower-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 5300 %}
+        {% elif states('sensor.hot_tub_watts') | float > 5200 %}
           CircPump-Heat
-        {% elif states('sensor.hot_tub_watts') | float > 5170 %}
+        {% elif states('sensor.hot_tub_watts') | float > 5000 %}
           CircPump-Blower-Pump1-Pump2
-        {% elif states('sensor.hot_tub_watts') | float > 4750 %}
+        {% elif states('sensor.hot_tub_watts') | float > 4600 %}
           CircPump-Pump1-Pump2
-        {% elif states('sensor.hot_tub_watts') | float > 2930 %}
+        {% elif states('sensor.hot_tub_watts') | float > 2900 %}
           CircPump-Blower-Pump1
-        {% elif states('sensor.hot_tub_watts') | float > 2630 %}
+        {% elif states('sensor.hot_tub_watts') | float > 3700 %}
           CircPump-Blower-Pump2
-        {% elif states('sensor.hot_tub_watts') | float > 2500 %}
+        {% elif states('sensor.hot_tub_watts') | float > 2350 %}
           CircPump-Pump1
-        {% elif states('sensor.hot_tub_watts') | float > 2380 %}
+        {% elif states('sensor.hot_tub_watts') | float > 2400 %}
           CircPump-Pump2
         {% elif states('sensor.hot_tub_watts') | float > 500 %}
           CircPump-Blower
@@ -64,9 +88,9 @@
           Off
         {% endif %}
 
-    ##########################################################
-    ## Hot Tub Circulation Pump
-    ##########################################################
+     ##########################################################
+     ## Hot Tub Circulation Pump
+     ##########################################################
 
   - binary_sensor:
     - unique_id: hot_tub_circ_pump
@@ -148,24 +172,40 @@
            or is_state('sensor.hot_tub_mode', 'CircPump-Heat') }}
 
       ##########################################################
-      ## UPS - A
+      ## UPS-A Watts
       ##########################################################
 
   - sensor:
-    - unique_id: ups_a_battery_runtime_mins
-      name: UPS A Battery Runtime Mins
-      unit_of_measurement: "Minutes"
-      state: “{{ ( states('sensor.ups_a_battery_runtime') | int / 60 ) | round(0) }}”
+      - unique_id: ups_a_watts
+        name: UPS-A Watts
+        state_class: measurement
+        device_class: power  
+        unit_of_measurement: "W"
+        state: "{{ states('sensor.ups_a_load')|float * 0.01 * states('sensor.ups_a_nominal_output_power')|round(2) }}"
 
       ##########################################################
-      ## UPS - B
+      ## UPS-B Watts
       ##########################################################
 
   - sensor:
-    - unique_id: ups_b_battery_runtime_mins
-      name: UPS B Battery Runtime Mins
-      unit_of_measurement: "Minutes"
-      state: “{{ ( states('sensor.ups_b_battery_runtime') | int / 60 ) | round(0) }}”
+      - unique_id: ups_b_watts
+        name: UPS-B Watts
+        state_class: measurement
+        device_class: power  
+        unit_of_measurement: "W"
+        state: "{{ states('sensor.ups_b_load')|float * 0.01 * states('sensor.ups_b_nominal_output_power')|round(2) }}"
+
+      ##########################################################
+      ## Server Rack Watts
+      ##########################################################
+
+  - sensor:
+      - unique_id: server_rack_watts
+        name: Server Rack Watts
+        state_class: measurement
+        device_class: power  
+        unit_of_measurement: "W"
+        state: "{{ states('sensor.ups_a_load')|float * 0.01 * states('sensor.ups_a_nominal_output_power')|round(2) + states('sensor.ups_b_load')|float * 0.01 * states('sensor.ups_b_nominal_output_power')|round(2) }}"
 
       ##########################################################
       ## Washing Machine Time Remaining
@@ -229,7 +269,117 @@
   - sensor:
     - unique_id: holidays_calendar
       name: Holiday Calendar
-      state: '{{ states.calendar.holidays_in_united_states.attributes.message }}'
+      state: '{{ states.calendar.holiday.attributes.message }}'
+
+       ##########################################################
+       ## Water Flow
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: water_flow_status
+      name: "Water Flow Status"
+      state: >-
+        {{ states('sensor.water_meter_current') != "0" }}
+
+       ##########################################################
+       ## USER1's Office Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: USER1_office_echo_timer
+      name: "USER1's Office Timer"
+      state: >-
+        {{ states('sensor.USER1_s_office_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Basement Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: basement_echo_timer
+      name: "Basement Timer"
+      state: >-
+        {{ states('sensor.basement_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Bathroom Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: bathroom_echo_timer
+      name: "Bathroom Timer"
+      state: >-
+        {{ states('sensor.bathroom_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Bathroom Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: bedroom_echo_timer
+      name: "Bedroom Timer"
+      state: >-
+        {{ states('sensor.bedroom_echo_spot_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Bathroom Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: craft_room_echo_timer
+      name: "Craft Room Timer"
+      state: >-
+        {{ states('sensor.craft_room_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Dining Room Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: dining_room_echo_timer
+      name: "Dining Room Timer"
+      state: >-
+        {{ states('sensor.dining_room_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Fitness Room Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: fitness_room_echo_timer
+      name: "Fitness Room Timer"
+      state: >-
+        {{ states('sensor.fitness_room_echo_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Guest Bedroom Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: guest_bedroom_echo_timer
+      name: "Guest Bedroom Timer"
+      state: >-
+        {{ states('sensor.guest_bedroom_echo_dot_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## Kitchen Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: kitchen_echo_timer
+      name: "Kitchen Timer"
+      state: >-
+        {{ states('sensor.kitchen_echo_dot_next_timer') != "unknown" }}
+
+       ##########################################################
+       ## USER2's Office Echo Timer
+       ##########################################################
+
+  - binary_sensor:
+    - unique_id: USER2_office_echo_timer
+      name: "USER2's Office Timer"
+      state: >-
+        {{ states('sensor.USER2_s_office_echo_next_timer') != "unknown" }}
 
       ##########################################################
       ## Thermostat
@@ -246,7 +396,7 @@
 
   - sensor:
     - unique_id: REDACTED_humidity
-      name: REDACTED Humidity
+      name: REDACTED, MO Humidity
       device_class: humidity
       unit_of_measurement: '%'
       state: '{{ states.weather.REDACTED.attributes.humidity }}'
@@ -257,84 +407,231 @@
 
   - sensor:
     - unique_id: REDACTED_temperature
-      name: REDACTED Temperature
+      name: REDACTED, MO Temperature
       device_class: temperature
       unit_of_measurement: '°F'
       state: '{{ states.weather.REDACTED.attributes.temperature }}'
 
       ##########################################################
-      ## Server Uptime
+      ## Get Forecast Every Hour
+      ##########################################################
+
+  - trigger:
+      - platform: time_pattern
+        hours: '/1'
+    action:
+      - service: weather.get_forecasts
+        target:
+          entity_id: weather.REDACTED_ecobee
+        data:
+          type: daily
+        response_variable: daily
+    sensor:
+      - name: REDACTED, MO Daily Forecast
+        unique_id: REDACTED_forecast_daily
+        state: "{{ now().isoformat() }}"
+        attributes:
+          forecast: "{{ daily['weather.REDACTED_ecobee'].forecast }}"
+      - name: REDACTED, MO Forecasted Condition
+        unique_id: REDACTED_forecasted_condition
+        state: "{{ daily['weather.REDACTED_ecobee'].forecast[0].condition }}"
+      - name: REDACTED, MO Forecasted Temperature (High)
+        unique_id: REDACTED_forecasted_temperature_high
+        state: "{{ daily['weather.REDACTED_ecobee'].forecast[0].temperature }}"
+        device_class: temperature
+        unit_of_measurement: '°F'
+      - name: REDACTED, MO Forecasted Temperature (Low)
+        unique_id: REDACTED_forecasted_temperature_low
+        state: "{{ daily['weather.REDACTED_ecobee'].forecast[0].templow }}"
+        device_class: temperature
+        unit_of_measurement: '°F'
+
+      ##########################################################
+      ## Outdoor Temperature Ranges
       ##########################################################
 
   - sensor:
-    - unique_id: server_uptime
-      name: Server Uptime
+    - unique_id: outdoor_temp_range
+      name: Outdoor Temp Range
       state: >
-         {% set lb = states('sensor.last_boot') %}
-         {% if lb != 'unknown' %}
-            {% set seconds = (as_timestamp(now()) - as_timestamp(lb))|int %}
-            {% set days = (seconds / 86400)|int %}
-            {% set seconds = seconds % 86400 %}
-            {% set hours = (seconds / 3600)|int %}
-            {% set seconds = seconds % 3600 %}
-            {% set minutes = (seconds / 60)|int %}
-            {% set seconds = seconds % 60 %}
-            {% if hours == 0 and minutes == 0 %}
-              {{ time }} seconds
-            {% else %}
-              {%- if days > 0 -%}
-                {%- if days == 1 -%}
-                  1 day
-                {%- else -%}
-                  {{ days }} days
-                {%- endif -%}
-              {%- endif -%}
-              {%- if hours > 0 and days < 7 -%}
-                {%- if days > 0 -%}
-                  {{ ', ' }}
-                {%- endif -%}
-                {%- if hours == 1 -%}
-                  1 hour
-                {%- else -%}
-                  {{ hours }} hours
-                {%- endif -%}
-              {%- endif -%}
-              {%- if days == 0 and minutes > 0 -%}
-                {%- if hours > 0 -%}
-                  {{ ', ' }}{{ minutes }} min
-                {%- else -%}
-                  {%- if minutes == 1 -%}
-                    1 minute
-                  {%- else -%}
-                    {{ minutes }} minutes
-                  {%- endif -%}
-                {%- endif -%}
-              {%- endif -%}
-            {% endif %}
-          {% else %}
-            unknown
-          {% endif %}
+        {% if states('sensor.REDACTED_temperature') | int >= 90 %}
+          temp-hot
+        {% elif states('sensor.REDACTED_temperature') | int >= 82 %}
+          temp-warmer
+        {% elif states('sensor.REDACTED_temperature') | int >= 76 %}
+          temp-warm
+        {% elif states('sensor.REDACTED_temperature') | int >= 60 %}
+          temp-norm
+        {% elif states('sensor.REDACTED_temperature') | int >= 45 %}
+          temp-cool
+        {% elif states('sensor.REDACTED_temperature') | int >= 33 %}
+          temp-cooler
+        {% elif states('sensor.REDACTED_temperature') | int <= 32 %}
+          temp-cold
+        {% else %}
+          temp-norm
+        {% endif %}
 
-       ##########################################################
-       ## Sump Pump Status
-       ##########################################################
+      ##########################################################
+      ## Weather Condition Night Fix
+      ##########################################################
 
-  - binary_sensor:
-    - unique_id: sump_pump_status
-      name: Sump Pump Status
-      delay_on:
-        seconds: 1
-      delay_off:
-        seconds: 1
+  - sensor:
+    - unique_id: weather_condition_REDACTED
+      name: Weather Condition REDACTED, MO
       state: >
-        '{{ states('sensor.sump_pump_switch_electric_consumed_w')| int >= 1  }}'
+        {% if is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'above_horizon') %}
+          sunny
+        {% elif is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'below_horizon') %}
+          clear-night
+        {% else %}
+          {{ states("weather.REDACTED_ecobee") }}
+        {% endif %}
 
-       ##########################################################
-       ## Water Flow
-       ##########################################################
+      ##########################################################
+      ## Weather Condition LCD Clock Icons
+      ##########################################################
 
-  - binary_sensor:
-    - unique_id: water_flow_status
-      name: "Water Flow Status"
-      state: >-
-        {{ states('sensor.water_meter_current') != "0" }}
+  - sensor:
+    - unique_id: weather_condition_lcd_clock_icon
+      name: Weather Condition LCD Clock Icon
+      state: >
+        {% if is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'above_horizon') %}
+          sunny
+        {% elif is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'below_horizon') %}
+          clear_night
+        {% elif is_state('weather.REDACTED_ecobee', 'partlycloudy') and is_state('sun.sun', 'above_horizon') %}
+          partlycloudy_day
+        {% elif is_state('weather.REDACTED_ecobee', 'partlycloudy') and is_state('sun.sun', 'below_horizon') %}
+          partlycloudy_night
+        {% elif is_state('weather.REDACTED_ecobee', 'cloudy') %}
+          cloudy
+        {% elif is_state('weather.REDACTED_ecobee', 'fog') %}
+          fog
+        {% elif is_state('weather.REDACTED_ecobee', 'lightning') %}
+          lightning
+        {% elif is_state('weather.REDACTED_ecobee', 'lightning-rainy') %}
+          lightning_rainy
+        {% elif is_state('weather.REDACTED_ecobee', 'pouring') %}
+          rainy
+        {% elif is_state('weather.REDACTED_ecobee', 'rainy') %}
+          rainy
+        {% elif is_state('weather.REDACTED_ecobee', 'snowy') %}
+          snowy
+        {% elif is_state('weather.REDACTED_ecobee', 'snowy-rainy') %}
+          snowy_rainy
+        {% elif is_state('weather.REDACTED_ecobee', 'windy') %}
+          windy
+        {% elif is_state('weather.REDACTED_ecobee', 'windy-variant') %}
+          windy
+        {% elif is_state('weather.REDACTED_ecobee', 'hail') %}
+          hail
+        {% elif is_state('weather.REDACTED_ecobee', 'hazy') %}
+          hazy
+        {% else %}
+          {{ states("sensor.weather_condition_REDACTED") }}
+        {% endif %}
+
+      ##########################################################
+      ## Weather Condition Human Readable
+      ##########################################################
+
+  - sensor:
+    - unique_id: weather_condition_human_readable
+      name: Weather Condition Human Readable
+      state: >
+        {% if is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'above_horizon') %}
+          Sunny
+        {% elif is_state('weather.REDACTED_ecobee', 'sunny') and is_state('sun.sun', 'below_horizon') %}
+          Clear Night
+        {% elif is_state('weather.REDACTED_ecobee', 'partlycloudy') and is_state('sun.sun', 'above_horizon') %}
+          Partly Cloudy
+        {% elif is_state('weather.REDACTED_ecobee', 'partlycloudy') and is_state('sun.sun', 'below_horizon') %}
+          Partly Cloudy
+        {% elif is_state('weather.REDACTED_ecobee', 'cloudy') %}
+          Cloudy
+        {% elif is_state('weather.REDACTED_ecobee', 'fog') %}
+          Fog
+        {% elif is_state('weather.REDACTED_ecobee', 'lightning') %}
+          Lightning
+        {% elif is_state('weather.REDACTED_ecobee', 'lightning-rainy') %}
+          Thunderstorm
+        {% elif is_state('weather.REDACTED_ecobee', 'pouring') %}
+          Rain
+        {% elif is_state('weather.REDACTED_ecobee', 'rainy') %}
+          Rain
+        {% elif is_state('weather.REDACTED_ecobee', 'snowy') %}
+          Snow
+        {% elif is_state('weather.REDACTED_ecobee', 'snowy-rainy') %}
+          Sleet
+        {% elif is_state('weather.REDACTED_ecobee', 'windy') %}
+          Windy
+        {% elif is_state('weather.REDACTED_ecobee', 'windy-variant') %}
+          Windy
+        {% elif is_state('weather.REDACTED_ecobee', 'hail') %}
+          Hail
+        {% elif is_state('weather.REDACTED_ecobee', 'hazy') %}
+          Hazy
+        {% else %}
+          {{ states("sensor.weather_condition_REDACTED") }}
+        {% endif %}
+
+      ##########################################################
+      ## Front Door Lock Code
+      ##########################################################
+
+  - sensor:
+    - unique_id: front_door_lock_code
+      name: Front Door Lock Code
+      state: >
+        {% if is_state('sensor.front_door_lock_alarmlevel', '2') %}
+          USER2
+        {% elif is_state('sensor.front_door_lock_alarmlevel', '3') %}
+          USER1
+        {% elif is_state('sensor.front_door_lock_alarmlevel', '4') %}
+          guest
+        {% elif is_state('sensor.front_door_lock_alarmlevel', '5') %}
+          guest
+        {% else %}
+          none
+        {% endif %}
+
+      ##########################################################
+      ## Back Door Lock Code
+      ##########################################################
+
+  - sensor:
+    - unique_id: back_door_lock_code
+      name: Back Door Lock Code
+      state: >
+        {% if is_state('sensor.back_door_lock_alarmlevel', '2') %}
+          USER2
+        {% elif is_state('sensor.back_door_lock_alarmlevel', '3') %}
+          USER1
+        {% elif is_state('sensor.back_door_lock_alarmlevel', '4') %}
+          guest
+        {% elif is_state('sensor.back_door_lock_alarmlevel', '5') %}
+          guest
+        {% else %}
+          none
+        {% endif %}
+
+      ##########################################################
+      ## Basement Door Lock Code
+      ##########################################################
+
+  - sensor:
+    - unique_id: basement_door_lock_code
+      name: Basement Door Lock Code
+      state: >
+        {% if is_state('sensor.basement_door_lock_alarmlevel', '2') %}
+          USER2
+        {% elif is_state('sensor.basement_door_lock_alarmlevel', '3') %}
+          USER1
+        {% elif is_state('sensor.basement_door_lock_alarmlevel', '4') %}
+          guest
+        {% elif is_state('sensor.basement_door_lock_alarmlevel', '5') %}
+          guest
+        {% else %}
+          none
+        {% endif %}

@@ -9,27 +9,27 @@
 - alias: Holiday - Enable Christmas Lighting
   id: 'holiday_enable_christmas_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
-    condition: or
-    conditions:
-      - condition: state
-        entity_id: sensor.holidays_calendar
-        state: 'Christmas Eve'
-      - condition: state
-        entity_id: sensor.holidays_calendar
-        state: 'Christmas Day'
+  conditions:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: sensor.holidays_calendar
+          state: 'Christmas Eve'
+        - condition: state
+          entity_id: sensor.holidays_calendar
+          state: 'Christmas Day'
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Christmas'
@@ -41,12 +41,12 @@
 - alias: Holiday - Christmas Lighting
   id: 'holiday_christmas_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -54,14 +54,14 @@
       entity_id: input_select.holiday
       state: 'Christmas'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: green
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -75,11 +75,11 @@
 - alias: Holiday - Christmas Lighting Rotate Colors
   id: 'holiday_christmas_lighting_rotate_colors'
 
-  trigger:
-    platform: time_pattern
-    seconds: /10
+  triggers:
+    trigger: time_pattern
+    minutes: /1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -89,21 +89,24 @@
     - condition: state
       entity_id: light.front_porch
       state: 'on'
+    - condition: time
+      after: '15:30:00'
+      before: '02:00:00'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 5
         brightness_pct: 100
         color_name: '{{ states(''input_select.exterior_christmas_light_color_left'') }}'
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 5
         brightness_pct: 100
         color_name: '{{ states(''input_select.exterior_christmas_light_color_right'') }}'
-    - service: input_select.select_option
+    - action: input_select.select_option
       target:
         entity_id: input_select.exterior_christmas_light_color_left
       data:
@@ -112,7 +115,7 @@
               | reject('eq', states('input_select.exterior_christmas_light_color_left'))
               | reject('eq', states('input_select.exterior_christmas_light_color_right'))
               | list | random }}
-    - service: input_select.select_option
+    - action: input_select.select_option
       target:
         entity_id: input_select.exterior_christmas_light_color_right
       data:
@@ -129,24 +132,24 @@
 - alias: Holiday - Enable New Years Eve Lighting
   id: 'holiday_enable_new_years_eve_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
-    condition: or
-    conditions:
-      - condition: state
-        entity_id: sensor.holidays_calendar
-        state: "New Year's Eve"
+  conditions:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: sensor.holidays_calendar
+          state: "New Year's Eve"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: "New Year's Eve"
@@ -158,12 +161,12 @@
 - alias: Holiday - New Years Eve Lighting
   id: 'holiday_new_years_eve_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -171,9 +174,9 @@
       entity_id: input_select.holiday
       state: "New Year's Eve"
 
-  action:
-    - service: homeassistant.turn_on
-      entity_id:  input_boolean.front_porch_rainbow
+  actions:
+    - action: homeassistant.turn_on
+      entity_id: input_boolean.front_porch_rainbow
 
         ##########################################################
         ## Enable Halloween Lighting
@@ -182,22 +185,22 @@
 - alias: Holiday - Enable Halloween Lighting
   id: 'holiday_enable_halloween_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: 'Halloween'
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Halloween'
@@ -209,12 +212,12 @@
 - alias: Holiday - Halloween Lighting
   id: 'holiday_halloween_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -222,14 +225,14 @@
       entity_id: input_select.holiday
       state: 'Halloween'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         rgb_color: [255,85,7]
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -243,32 +246,32 @@
 - alias: Holiday - Halloween Lighting Rotate on the Hour
   id: 'holiday_halloween_lighting_rotate_on_the_hour'
 
-  trigger:
-    platform: time_pattern
+  triggers:
+    trigger: time_pattern
     minutes: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: time
       after: '15:00:00'
-      before: '23:59:00'
+      before: '23:45:00'
     - condition: state
       entity_id: input_select.holiday
       state: 'Halloween'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [160,6,255]
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [255,85,7]
 
@@ -279,32 +282,32 @@
 - alias: Holiday - Halloween Lighting Rotate 15 mins after the Hour
   id: 'holiday_halloween_lighting_rotate_15_mins_after_the_hour'
 
-  trigger:
-    platform: time_pattern
+  triggers:
+    trigger: time_pattern
     minutes: 15
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: time
       after: '15:00:00'
-      before: '23:59:00'
+      before: '23:45:00'
     - condition: state
       entity_id: input_select.holiday
       state: 'Halloween'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [255,85,7]
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [160,6,255]
 
@@ -315,32 +318,32 @@
 - alias: Holiday - Halloween Lighting Rotate 30 Mins after the Hour
   id: 'holiday_halloween_lighting_rotate_30_mins_after_the_hour'
 
-  trigger:
-    platform: time_pattern
+  triggers:
+    trigger: time_pattern
     minutes: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: time
       after: '15:00:00'
-      before: '23:59:00'
+      before: '23:45:00'
     - condition: state
       entity_id: input_select.holiday
       state: 'Halloween'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [160,6,255]
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [255,85,7]
 
@@ -351,32 +354,32 @@
 - alias: Holiday - Halloween Lighting Rotate 45 Mins After the Hour
   id: 'holiday_halloween_lighting_rotate_45_mins_after_the_hour'
 
-  trigger:
-    platform: time_pattern
+  triggers:
+    trigger: time_pattern
     minutes: 45
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: time
       after: '15:00:00'
-      before: '23:59:00'
+      before: '23:45:00'
     - condition: state
       entity_id: input_select.holiday
       state: 'Halloween'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: [255,85,7]
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
-        transition: 5
+        transition: 2
         brightness_pct: 100
         rgb_color: 152,39,25
 
@@ -387,22 +390,22 @@
 - alias: Holiday - Enable St. Patricks Day Lighting
   id: 'holiday_enable_st_patricks_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "St. Patrick's Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: "St. Patricks Day"
@@ -414,12 +417,12 @@
 - alias: Holiday - St. Patricks Day Lighting
   id: 'holiday_st_patricks_day_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -427,14 +430,14 @@
       entity_id: input_select.holiday
       state: "St. Patrick's Day"
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: green
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -448,22 +451,22 @@
 - alias: Holiday - Enable Valentine's Day Lighting
   id: 'holiday_enable_valentines_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Valentine's Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: "Valentine's Day"
@@ -475,12 +478,12 @@
 - alias: Holiday - Valentine's Day Lighting
   id: 'holiday_valendtines_day_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -488,14 +491,14 @@
       entity_id: input_select.holiday
       state: "Valentine's Day"
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: "deeppink"
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -509,12 +512,12 @@
 - alias: Holiday - Cardinals Game Lighting
   id: 'holiday_cardinals_game_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -522,14 +525,14 @@
       entity_id: input_select.holiday
       state: 'Cardinals Game'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: red
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -543,12 +546,12 @@
 - alias: Holiday - Blues Game Lighting
   id: 'holiday_blues_game_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -556,14 +559,14 @@
       entity_id: input_select.holiday
       state: 'Blues Game'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: blue
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -577,22 +580,22 @@
 - alias: Holiday - Enable Easter Lighting
   id: 'holiday_enable_easter_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Easter Sunday"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Easter'
@@ -604,12 +607,12 @@
 - alias: Holiday - Easter Lighting
   id: 'holiday_easter_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -617,14 +620,14 @@
       entity_id: input_select.holiday
       state: 'Easter'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: "indigo"
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -638,22 +641,22 @@
 - alias: Holiday - Enable Thanksgiving Lighting
   id: 'holiday_enable_thanksgiving_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Thanksgiving Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Thanksgiving'
@@ -666,12 +669,12 @@
 - alias: Holiday - Thanksgiving Lighting
   id: 'holiday_thanksgiving_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_exterior_on_sunset
       state: 'off'
@@ -679,14 +682,14 @@
       entity_id: input_select.holiday
       state: 'Thanksgiving'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: "darkorange"
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
@@ -700,22 +703,22 @@
 - alias: Holiday - Enable Independence Day Lighting
   id: 'holiday_enable_independence_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Independence Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Independence Day'
@@ -727,22 +730,22 @@
 - alias: Holiday - Enable Memorial Day Lighting
   id: 'holiday_enable_memorial_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Memorial Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Memorial Day'
@@ -754,22 +757,22 @@
 - alias: Holiday - Enable Veterans Day Lighting
   id: 'holiday_enable_veterans_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Veterans Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Veterans Day'
@@ -781,22 +784,22 @@
 - alias: Holiday - Enable Labor Day Lighting
   id: 'holiday_enable_labor_day_lighting'
 
-  trigger:
-    - platform: state
-      entity_id: calendar.holidays_in_united_states
+  triggers:
+    - trigger: state
+      entity_id: calendar.holiday
       to: 'on'
       for:
         hours: 9
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sensor.holidays_calendar
       state: "Labor Day"
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: 'Labor Day'
@@ -808,546 +811,40 @@
 - alias: Holiday - Independence / Memorial / Veterans / Labor Day Lighting
   id: 'holiday_independence_memorial_veterans_labor_day_lighting'
 
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: 'sunset'
       offset: '-00:15:00'
 
-  condition:
-    condition: or
-    conditions:
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Labor Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Memorial Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Independence Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Veterans Day'
+  conditions:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Labor Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Memorial Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Independence Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Veterans Day'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.front_porch_left
       data:
         transition: 900
         brightness_pct: 100
         color_name: blue
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.front_porch_right
       data:
         transition: 900
         brightness_pct: 100
         color_name: red
-
-        ##########################################################
-        ## Christmas Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Christmas Lighting Interior
-  id: 'holiday_christmas_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Christmas'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-
-        ##########################################################
-        ## Christmas Lighting Rotate Hour Interior
-        ##########################################################
-
-- alias: Holiday - Christmas Lighting Rotate Hour Interior
-  id: 'holiday_christmas_lighting_rotate_hour_interior'
-
-  trigger:
-    platform: time_pattern
-    minutes: 0
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Christmas'
-    - condition: state
-      entity_id: input_boolean.interior_holiday
-      state: 'on'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-
-        ##########################################################
-        ## Christmas Lighting Rotate 30 Min Interior
-        ##########################################################
-
-- alias: Holiday - Christmas Lighting Rotate 30 Min Interior
-  id: 'holiday_christmas_lighting_rotate_30_min_interior'
-
-  trigger:
-    platform: time_pattern
-    minutes: 30
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Christmas'
-    - condition: state
-      entity_id: input_boolean.interior_holiday
-      state: 'on'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-
-        ##########################################################
-        ## Halloween Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Halloween Lighting Interior
-  id: 'holiday_halloween_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Halloween'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        rgb_color: [255,85,7]
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        rgb_color: [255,85,7]
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        rgb_color: 152,39,25
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        rgb_color: 152,39,25
-
-        ##########################################################
-        ## St. Patricks Day Lighting Interior
-        ##########################################################
-
-- alias: Holiday - St. Patricks Day Lighting Interior
-  id: 'holiday_st_patricks_day_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: "St. Patrick's Day"
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: green
-
-        ##########################################################
-        ## Valentine's Day Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Valentine's Day Lighting Interior
-  id: 'holiday_valentines_day_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_boolean.disable_exterior_on_sunset
-      state: 'off'
-    - condition: state
-      entity_id: input_select.holiday
-      state: "Valentine's Day"
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "deeppink"
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "deeppink"
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "deeppink"
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "deeppink"
-
-        ##########################################################
-        ## Cardinals Game Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Cardinals Game Lighting Interior
-  id: 'holiday_cardinals_game_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_boolean.disable_exterior_on_sunset
-      state: 'off'
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Cardinals Game'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-
-        ##########################################################
-        ## Blues Game Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Blues Game Lighting Interior
-  id: 'holiday_blues_game_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_boolean.disable_exterior_on_sunset
-      state: 'off'
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Blues Game'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
-
-        ##########################################################
-        ## Easter Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Easter Lighting Interior
-  id: 'holiday_easter_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Easter'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "indigo"
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "indigo"
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "tomato"
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "tomato"
-
-        ##########################################################
-        ## Thanksgiving Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Thanksgiving Lighting Interior
-  id: 'holiday_thanksgiving_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_select.holiday
-      state: 'Thanksgiving'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "darkorange"
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "darkorange"
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "yellow"
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: "yellow"
-
-        ##########################################################
-        ## Independence / Memorial / Veterans / Labor Day Lighting Interior
-        ##########################################################
-
-- alias: Holiday - Independence / Memorial / Veterans / Labor Day Lighting Interior
-  id: 'holiday_independence_memorial_veterans_labor_day_lighting_interior'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.interior_holiday
-      from: 'off'
-      to: 'on'
-
-  condition:
-    condition: or
-    conditions:
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Labor Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Memorial Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Independence Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Veterans Day'
-
-  action:
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_1
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.living_room_lamp_2
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: red
-    - service: light.turn_on
-      entity_id: light.media_center_lighting
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
-    - service: light.turn_on
-      entity_id: light.globe
-      data:
-        transition: 15
-        brightness_pct: 100
-        color_name: blue
 
         ##########################################################
         ## Turn Off Holiday Lighting at 2:00 am
@@ -1356,25 +853,36 @@
 - alias: Holiday - Turn Off Lighting at 2a
   id: 'holiday_turn_off_lighting_at_2a'
 
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: '01:59:00'
 
-  condition:
-    condition: not
-    conditions:
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'None'
+  conditions:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: input_select.holiday
+          state: "New Year's Eve"
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Christmas'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'None'
 
-  action:
-    - service: homeassistant.turn_off
+  actions:
+    - action: homeassistant.turn_off
       entity_id: input_boolean.front_porch_rainbow
     - delay: '00:00:60'
-    - service: light.turn_off
+    - action: light.turn_off
       entity_id: light.front_porch
     - delay: '00:00:60'
-    - service: light.turn_off
+    - action: light.turn_off
+      entity_id: light.front_porch
+    - delay: '00:00:90'
+    - action: light.turn_off
       entity_id: light.front_porch
 
         ##########################################################
@@ -1384,51 +892,49 @@
 - alias: Holiday - Reset Lighting at 4a
   id: 'holiday_reset_lighting_at_4a'
 
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: '04:00:00'
 
-  condition:
-    condition: or
-    conditions:
-      - condition: state
-        entity_id: input_select.holiday
-        state: "St. Patrick's Day"
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Easter'
-      - condition: state
-        entity_id: input_select.holiday
-        state: "Valentine's Day"
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Thanksgiving'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Labor Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Memorial Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Independence Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Veterans Day'
-      - condition: state
-        entity_id: input_select.holiday
-        state: "New Year's Eve"
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Cardinals Game'
-      - condition: state
-        entity_id: input_select.holiday
-        state: 'Blues Game'
+  conditions:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: input_select.holiday
+          state: "St. Patrick's Day"
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Easter'
+        - condition: state
+          entity_id: input_select.holiday
+          state: "Valentine's Day"
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Thanksgiving'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Labor Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Memorial Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Independence Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Veterans Day'
+        - condition: state
+          entity_id: input_select.holiday
+          state: "New Year's Eve"
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Cardinals Game'
+        - condition: state
+          entity_id: input_select.holiday
+          state: 'Blues Game'
 
-  action:
-    - service: input_select.select_option
+  actions:
+    - action: input_select.select_option
       data:
         entity_id: input_select.holiday
         option: "None"
-    - service: homeassistant.turn_off
-      entity_id: input_boolean.interior_holiday

@@ -13,8 +13,8 @@
 - alias: Laundry - Washing Machine Done USER1 iOS Notification
   id: 'laundry_washing_machine_done_USER1_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.washer_wash_completed
       from: 'off'
       to: 'on'
@@ -23,7 +23,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -34,13 +34,12 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.mobile_app_USER1s_iphone
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Washing Machine Finished
         data:
           tag: washer
-          group: laundry
 
         ##########################################################
         ## Dryer Done - USER1 iOS Notification
@@ -49,8 +48,8 @@
 - alias: Laundry - Dryer Done USER1 iOS Notification
   id: 'laundry_dryer_done_USER1_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.dryer_dry_completed
       from: 'off'
       to: 'on'
@@ -59,7 +58,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -70,13 +69,12 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.mobile_app_USER1s_iphone
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Dryer Finished
         data:
           tag: dryer
-          group: laundry
 
         ##########################################################
         ## Washing Machine Done - USER2 iOS Notification
@@ -85,8 +83,8 @@
 - alias: Laundry - Washing Machine Done USER2 iOS Notification
   id: 'laundry_washing_machine_done_USER2_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.washer_wash_completed
       from: 'off'
       to: 'on'
@@ -95,7 +93,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -106,13 +104,12 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER2_devices
+  actions:
+    - action: notify.USER2_devices
       data:
         message: Washing Machine Finished
         data:
           tag: washer
-          group: laundry
 
         ##########################################################
         ## Dryer Done - USER2 iOS Notification
@@ -121,8 +118,8 @@
 - alias: Laundry - Dryer Done USER2 iOS Notification
   id: 'laundry_dryer_done_USER2_ios_notficiation'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.dryer_dry_completed
       from: 'off'
       to: 'on'
@@ -131,7 +128,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -142,13 +139,12 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER2_devices
+  actions:
+    - action: notify.USER2_devices
       data:
         message: Dryer Finished
         data:
           tag: dryer
-          group: laundry
 
         ##########################################################
         ## Washing Machine Done - Audio Notification
@@ -157,8 +153,8 @@
 - alias: Laundry - Washing Machine Done Audio Notification
   id: 'laundry_washing_machine_done_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.washer_wash_completed
       from: 'off'
       to: 'on'
@@ -167,7 +163,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -178,85 +174,25 @@
       after: '09:00:00'
       before: '20:00:00'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
-          - media_player.sonos_dining_room
           - media_player.sonos_kitchen
           - media_player.sonos_bathroom
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Washing Machine Has Finished'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Washing Machine Has Finished"
+        media_content_type: "music"
+        extra:
+          volume: 45
 
         ##########################################################
         ## Dryer Done - Audio Notification
@@ -265,8 +201,8 @@
 - alias: Laundry - Dryer Done Audio Notification
   id: 'laundry_dryer_done_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.dryer_dry_completed
       from: 'off'
       to: 'on'
@@ -275,7 +211,7 @@
         minutes: 0
         seconds: 1
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -286,85 +222,25 @@
       after: '09:00:00'
       before: '20:00:00'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
-          - media_player.sonos_dining_room
           - media_player.sonos_kitchen
           - media_player.sonos_bathroom
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Dryer Has Finished'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Dryer Has Finished"
+        media_content_type: "music"
+        extra:
+          volume: 45
 
         ##########################################################
         ## Washer Run Tub Clean Notification
@@ -373,12 +249,12 @@
 - alias: Laundry - Washer Run Tub Clean Notification
   id: 'laundry_washer_run_tub_clean_notification'
 
-  trigger:
-    - platform: numeric_state
+  triggers:
+    - trigger: numeric_state
       entity_id: sensor.washer_tub_clean
       above: 29
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -386,10 +262,9 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.mobile_app_USER1s_iphone
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Time to Run a Tub Clean Cycler on the Washer
         data:
           tag: washer-clean
-          group: laundry

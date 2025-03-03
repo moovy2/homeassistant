@@ -9,33 +9,33 @@
 - alias: Water Works - Sound Alarm When Water Detected Lights
   id: 'water_works_sound_alarm_when_water_detected_lights'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.basement_drain_water_sensor_liquid_detected
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.kitchen_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.bathroom_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.upstairs_bathrooom_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.utility_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.washing_machine_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -43,16 +43,18 @@
       entity_id: input_boolean.disable_water_automations
       state: 'off'
 
-  action:
-    - service: light.turn_on
-      entity_id:
-        - light.hue_lights
+  actions:
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.smart_bulbs
       data:
        brightness_pct: 100
        color_name: "blue"
-    - service: light.turn_on
-      entity_id:
-        - light.hue_lights
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.smart_bulbs
       data:
        flash: long
 
@@ -63,44 +65,44 @@
 - alias: Water Works - Shut Off Water Main When Water Detected
   id: 'water_works_shut_off_water_main_when_water_detected'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.basement_drain_water_sensor_liquid_detected
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.kitchen_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.bathroom_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.upstairs_bathrooom_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.utility_sink_water_sensor
       from: 'off'
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: binary_sensor.washing_machine_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_water_automations
       state: 'off'
     - condition: state
-      entity_id: switch.water_main
-      state: 'on'
+      entity_id: valve.water_main
+      state: 'open'
 
-  action:
-    - service: switch.turn_off
+  actions:
+    - action: valve.close_valve
       entity_id:
-        - switch.water_main
+        - valve.water_main
 
         ##########################################################
         ## Shut Off Water Main When Vacation Mode On
@@ -109,13 +111,13 @@
 - alias: Water Works - Shut Off Water Main When Vacation Mode On
   id: 'water_works_shut_off_water_main_when_vacation_mode_on'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.vacation_mode
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_water_automations
       state: 'off'
@@ -123,13 +125,14 @@
       entity_id: input_boolean.disable_home_away
       state: 'off'
     - condition: state
-      entity_id: switch.water_main
-      state: 'on'
+      entity_id: valve.water_main
+      state: 'open'
 
-  action:
-    - service: switch.turn_off
-      entity_id:
-        - switch.water_main
+  actions:
+    - action: valve.close_valve
+      target:
+        entity_id:
+          - valve.water_main
 
         ##########################################################
         ## Turn On Water Main When Vacation Mode Off
@@ -138,13 +141,13 @@
 - alias: Water Works - Turn On Water Main When Vacation Mode Off
   id: 'water_works_turn_on_water_main_when_vacation_mode_off'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.vacation_mode
       from: 'on'
       to: 'off'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_water_automations
       state: 'off'
@@ -152,13 +155,14 @@
       entity_id: input_boolean.disable_home_away
       state: 'off'
     - condition: state
-      entity_id: switch.water_main
-      state: 'off'
+      entity_id: valve.water_main
+      state: 'closed'
 
-  action:
-    - service: switch.turn_on
-      entity_id:
-        - switch.water_main
+  actions:
+    - action: valve.open_valve
+      target:
+        entity_id:
+          - valve.water_main
 
 #################################################################
 ## Notifications
@@ -171,24 +175,23 @@
 - alias: Water Works - Water Main Turned Off iOS Notification
   id: 'water_works_water_main_turned_off_ios_notification'
 
-  trigger:
-    - platform: state
-      entity_id: switch.water_main
-      from: 'on'
-      to: 'off'
+  triggers:
+    - trigger: state
+      entity_id: valve.water_main
+      from: 'open'
+      to: 'closed'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Main Has Been Shut Off!
         data:
           tag: water-main
-          group: water
 
         ##########################################################
         ## Water Main Turned On iOS Notification
@@ -197,13 +200,13 @@
 - alias: Water Works - Water Main Turned On iOS Notification
   id: 'water_works_water_main_turned_on_ios_notification'
 
-  trigger:
-    - platform: state
-      entity_id: switch.water_main
-      from: 'off'
-      to: 'on'
+  triggers:
+    - trigger: state
+      entity_id: valve.water_main
+      from: 'closed'
+      to: 'open'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
@@ -211,39 +214,12 @@
       entity_id: input_boolean.disable_startup_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Main Has Been Turned Back On
         data:
           tag: water-main
-          group: water
-
-        ##########################################################
-        ## Sump Pump Power Off iOS Notification
-        ##########################################################
-
-- alias: Water Works - Sump Pump Power Off iOS Notification
-  id: 'water_works_sump_pump_power_off_ios_notification'
-
-  trigger:
-    - platform: state
-      entity_id: switch.sump_pump_switch
-      from: 'on'
-      to: 'off'
-
-  condition:
-    - condition: state
-      entity_id: input_boolean.disable_notifications
-      state: 'off'
-
-  action:
-    - service: notify.USER1_devices
-      data:
-        message: Sump Pump Switch Turned Off!
-        data:
-          tag: sump-pump
-          group: water
 
         ##########################################################
         ## Basement Drain Water Sensor iOS Notification
@@ -252,24 +228,23 @@
 - alias: Water Works - Basement Drain Water Sensor iOS Notification
   id: 'water_works_basement_drain_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.basement_drain_water_sensor_liquid_detected
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected in Basement Drain!
         data:
-          tag: water-leak
-          group: water
+          tag: basement-drain-water-leak
 
         ##########################################################
         ## Kitchen Sink Water Sensor iOS Notification
@@ -278,24 +253,23 @@
 - alias: Water Works - Kitchen Sink Water Sensor iOS Notification
   id: 'water_works_kitchen_sink_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.kitchen_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected Under Kitchen Sink!
         data:
-          tag: water-leak
-          group: water
+          tag: kitchen-sink-water-leak
 
         ##########################################################
         ## Bathroom Sink Water Sensor iOS Notification
@@ -304,24 +278,23 @@
 - alias: Water Works - Bathroom Sink Water Sensor iOS Notification
   id: 'water_works_bathroom_sink_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.bathroom_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected Under Bathroom Sink!
         data:
-          tag: water-leak
-          group: water
+          tag: bathroom-sink-water-leak
 
         ##########################################################
         ## Attic Water Sensor iOS Notification
@@ -330,24 +303,23 @@
 - alias: Water Works - Attic Water Sensor iOS Notification
   id: 'water_works_attic_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.attic_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected by Attic!
         data:
-          tag: water-leak
-          group: water
+          tag: attic-water-leak
 
         ##########################################################
         ## Upstairs Bathroom Water Sensor iOS Notification
@@ -356,24 +328,23 @@
 - alias: Water Works - Upstairs Bathroom Water Sensor iOS Notification
   id: 'water_works_upstairs_bathroom_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.upstairs_bathrooom_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected in Upstairs Bathroom!
         data:
-          tag: water-leak
-          group: water
+          tag: upstairs-bathroom-water-leak
 
         ##########################################################
         ## Coal Room Water Sensor iOS Notification
@@ -382,24 +353,23 @@
 - alias: Water Works - Coal Room Water Sensor iOS Notification
   id: 'water_works_coal_room_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.coal_room_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected in Coal Room!
         data:
-          tag: water-leak
-          group: water
+          tag: coal-room-water-leak
 
         ##########################################################
         ## Utility Sink Water Sensor iOS Notification
@@ -408,24 +378,23 @@
 - alias: Water Works - Utility Sink Water Sensor iOS Notification
   id: 'water_works_utility_sink_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.utility_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected Under Utility Sink!
         data:
-          tag: water-leak
-          group: water
+          tag: utility-sink-water-leak
 
         ##########################################################
         ## Washing Machine Water Sensor iOS Notification
@@ -434,24 +403,23 @@
 - alias: Water Works - Washing Machine Water Sensor iOS Notification
   id: 'water_works_washing_mashine_water_sensor_ios_notficiation'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.washing_machine_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected by Washing Machine!
         data:
-          tag: water-leak
-          group: water
+          tag: washing-machine-water-leak
 
         ##########################################################
         ## Sump Pump Water Sensor iOS Notification
@@ -460,50 +428,23 @@
 - alias: Water Works - Sump Pump Water Sensor iOS Notification
   id: 'water_works_sump_pump_water_sensor_ios_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.sump_pump_water_sensor_liquid_detected
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Detected in Sump Pump!
         data:
-          tag: water-leak
-          group: water
-
-        ##########################################################
-        ## Sump Pump On iOS Notification
-        ##########################################################
-
-- alias: Water Works - Sump Pump On iOS Notification
-  id: 'water_works_sump_pump_on_ios_notification'
-
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.sump_pump_status
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: input_boolean.disable_notifications
-      state: 'off'
-
-  action:
-    - service: notify.USER1_devices
-      data:
-        message: Sump Pump has Turned On!
-        data:
-          tag: sump-pump
-          group: water
+          tag: sump-pump-water-leak
 
         ##########################################################
         ## Basement Drain Water Sensor Audio Notification
@@ -512,13 +453,13 @@
 - alias: Water Works - Basement Drain Water Sensor Audio Notification
   id: 'water_works_basement_drain_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.basement_drain_water_sensor_liquid_detected
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -529,11 +470,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -541,84 +481,18 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected in Basement Drain! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected in Basement Drain! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
+ 
         ##########################################################
         ## Kitchen Sink Water Sensor Audio Notification
         ##########################################################
@@ -626,13 +500,13 @@
 - alias: Water Works - Kitchen Sink Water Sensor Audio Notification
   id: 'water_works_kitchen_sink_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.kitchen_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -643,11 +517,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -655,83 +528,17 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected Under Kitchen Sink! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected Under Kitchen Sink! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
 
         ##########################################################
         ## Bathroom Sink Water Sensor Audio Notification
@@ -740,13 +547,13 @@
 - alias: Water Works - Bathroom Sink Water Sensor Audio Notification
   id: 'water_works_bathroom_sink_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.bathroom_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -757,11 +564,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -769,83 +575,17 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected Under Bathroom Sink! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected Under Bathroom Sink! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
 
         ##########################################################
         ## Upstairs Bathroom Sink Water Sensor Audio Notification
@@ -854,13 +594,13 @@
 - alias: Water Works - Upstairs Bathroom Sink Water Sensor Audio Notification
   id: 'water_works_upstairs_bathroom_sink_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.upstairs_bathrooom_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -871,11 +611,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -883,83 +622,17 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected In Upstairs Bathroom! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected In Upstairs Bathroom! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
 
         ##########################################################
         ## Utility Sink Water Sensor Audio Notification
@@ -968,13 +641,13 @@
 - alias: Water Works - Utility Sink Water Sensor Audio Notification
   id: 'water_works_utility_sink_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.utility_sink_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -985,11 +658,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -997,83 +669,17 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected Under Utility Sink! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected Under Utility Sink! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
 
         ##########################################################
         ## Washing Machine Water Sensor Audio Notification
@@ -1082,13 +688,13 @@
 - alias: Water Works - Washing Machine Water Sensor Audio Notification
   id: 'water_works_washing_machine_water_sensor_audio_notification'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.washing_machine_water_sensor
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -1099,11 +705,10 @@
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: sonos.snapshot
-      data:
-        with_group: yes
-        entity_id:
+  actions:
+    - action: media_player.play_media
+      target:
+        entity_id: 
           - media_player.sonos_living_room
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
@@ -1111,83 +716,17 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:03'
-    - service: media_player.unjoin
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.join
-      data:
-        entity_id:
-          - media_player.sonos_living_room
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
-    - delay: '00:00:01'
-    - service: media_player.volume_set
-      entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_move
           - media_player.sonos_fitness_room
           - media_player.sonos_craft_room
       data:
-        volume_level: 0.5
-    - delay: '00:00:02'
-    - service: tts.cloud_say
-      data_template:
-        entity_id: media_player.sonos_living_room
-        message: 'Water Detected by Washing Machine! Shutting Off Water Supply'
-    - delay: '00:00:25'
-    - service: sonos.restore
-      data:
-        with_group: yes
-        entity_id:
-          - media_player.sonos_living_room
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-          - media_player.sonos_bedroom
-          - media_player.sonos_bedroom_closet
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
-          - media_player.sonos_USER2s_office
-          - media_player.sonos_move
-          - media_player.sonos_fitness_room
-          - media_player.sonos_craft_room
+        announce: true
+        media_content_id: >
+          media-source://tts/cloud?message="Water Detected by Washing Machine! Shutting Off Water Supply"
+        media_content_type: "music"
+        extra:
+          volume: 50
 
         ##########################################################
         ## Water Sensor Low Battery Notification
@@ -1196,9 +735,10 @@
 - alias: Water Works - Low Battery Notification
   id: 'water_works_low_battery_notification'
 
-  trigger:
-    - platform: numeric_state
-      entity_id: 
+  mode: parallel
+  triggers:
+    - trigger: numeric_state
+      entity_id:
         - sensor.basement_drain_water_sensor_batt
         - sensor.sump_pump_water_sensor_batt
         - sensor.kitchen_sink_water_sensor_batt
@@ -1214,15 +754,41 @@
         minutes: 0
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: input_boolean.disable_notifications
       state: 'off'
 
-  action:
-    - service: notify.USER1_devices
+  actions:
+    - action: notify.USER1_devices
       data:
         message: Water Sensor {{ trigger.to_state.attributes.friendly_name }} Low Battery
+
+#################################################################
+## Water Meter Automations
+#################################################################
+
+        ##########################################################
+        ## Water Leak Detected iOS Notification
+        ##########################################################
+
+- alias: Water Works - Water Leak Detected iOS Notification
+  id: 'water_works_water_leak_detected_ios_notification'
+
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.water_meter_leak_detected
+      from: 'off'
+      to: 'on'
+
+  conditions:
+    - condition: state
+      entity_id: input_boolean.disable_notifications
+      state: 'off'
+
+  actions:
+    - action: notify.USER1_devices
+      data:
+        message: Possible Water Leak Detected!
         data:
-          tag: battery
-          group: battery
+          tag: water-leak

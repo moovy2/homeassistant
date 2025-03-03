@@ -3,21 +3,204 @@
 #################################################################
 
         ##########################################################
+        ## Turn Off Lamp 1 for TV
+        ##########################################################
+
+- alias: Media - Turn Off Lamp 1 for TV
+  id: 'media_turn_off_lamp_1_for_tv'
+
+  triggers:
+    - trigger: state
+      entity_id: media_player.living_room_apple_tv
+      to: 'playing'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 35
+
+  conditions:
+    - condition: state
+      entity_id: group.household
+      state: 'home'
+    - condition: state
+      entity_id: light.living_room_lamp_1
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.disable_media_lights
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.livingroom_rainbow
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: select.living_room_tv_activities
+        state: "power_off"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.google.ios.youtube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_name
+        state: "YouTube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.apple.TVPhotos"
+
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_lamp_1
+      data:
+       transition: 5
+
+        ##########################################################
+        ## Turn Off Lamp 1 for Game Consoles
+        ##########################################################
+
+- alias: Media - Turn Off Lamp 1 for Game Consoles
+  id: 'media_turn_off_lamp_1_for_game_consoles'
+
+  triggers:
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      to: "Play Xbox"
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 5
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      to: "Play Nintendo Switch"
+      for:
+        hours: 0
+        minutes: 2
+        seconds: 5
+
+  conditions:
+    - condition: state
+      entity_id: group.household
+      state: 'home'
+    - condition: state
+      entity_id: light.living_room_lamp_1
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.disable_media_lights
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.livingroom_rainbow
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: select.living_room_tv_activities
+        state: "power_off"
+
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_lamp_1
+      data:
+       transition: 5
+
+        ##########################################################
+        ## Turn On Lamp 1 for TV
+        ##########################################################
+
+- alias: Media - Turn On Lamp 1 for TV
+  id: 'media_turn_on_lamp_1_for_tv'
+
+  triggers:
+    - trigger: state
+      entity_id: media_player.living_room_apple_tv
+      from: 'playing'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 35
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      from: "Play Xbox"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 35
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      from: "Play Nintendo Switch"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 35
+
+  conditions:
+    - condition: state
+      entity_id: group.household
+      state: 'home'
+    - condition: state
+      entity_id: light.living_room_lamp_1
+      state: 'off'
+    - condition: state
+      entity_id: light.living_room_lamp_2
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.disable_media_lights
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.livingroom_rainbow
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: select.living_room_tv_activities
+        state: "Play Xbox"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: select.living_room_tv_activities
+        state: "Play Nintendo Switch"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        state: "playing"
+
+  actions:
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.living_room_lamp_1
+      data:
+       transition: 5
+       color_temp: 370
+       brightness_pct: 100
+
+        ##########################################################
         ## Plex Lights On
         ##########################################################
 
 - alias: Media - Plex Stopped Lights On
   id: 'media_plex_stopped_lights_on'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'idle'
       for:
         hours: 0
         minutes: 0
         seconds: 10
-    - platform: state
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'paused'
       for:
@@ -25,7 +208,7 @@
         minutes: 0
         seconds: 10
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -35,38 +218,57 @@
     - condition: state
       entity_id: input_boolean.watching_plex
       state: 'on'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.living_room_lamps
       data:
        transition: 5
-       color_temp: 447
+       color_temp: 370
        brightness_pct: 100
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.media_center_lighting
       data:
        transition: 5
        brightness_pct: 100
-    - service: light.turn_on
-      entity_id: 
-        - light.hallway_light
+    - action: light.turn_on
+      target:
+        entity_id: 
+          - light.hallway_light
       data:
        brightness_pct: 25
-    - service: light.turn_on
-      entity_id:
-        - light.dining_room_table
-        - light.bathroom_vanity
-        - light.kitchen_sink
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.dining_room_table
       data:
        brightness_pct: 40
-    - service: light.turn_on
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.bathroom_vanity
+      data:
+       brightness_pct: 40
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.kitchen_sink
+      data:
+       brightness_pct: 40
+    - action: light.turn_on
       entity_id: light.kitchen_cabinets
       data:
        brightness_pct: 2
-    - service: light.turn_on
-      entity_id:
-        - light.globe
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.globe
       data:
        transition: 5
        brightness_pct: 65
@@ -78,41 +280,84 @@
 - alias: Media - Plex Started Lights Off
   id: 'media_plex_started_lights_off'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'playing'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 15
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: state
       entity_id: input_boolean.disable_media_lights
       state: 'off'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: homeassistant.turn_on
+  actions:
+    - action: homeassistant.turn_on
       entity_id: input_boolean.watching_plex
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
       data:
        transition: 10
-    - service: light.turn_off
-      entity_id:
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
-    - delay: '00:00:30' 
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_east
+    - delay: '00:00:05'
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_west
+    - delay: '00:00:15' 
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
 
         ##########################################################
         ## Turn Off Watching Plex Boolean
@@ -121,22 +366,22 @@
 - alias: Media - Turn Off Watching Plex Boolean
   id: 'media_turn_off_watching_plex_boolean'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'idle'
       for:
         hours: 0
         minutes: 3
         seconds: 0
-    - platform: state
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'paused'
       for:
         hours: 0
         minutes: 3
         seconds: 0
-    - platform: state
+    - trigger: state
       entity_id: media_player.plex_living_room_appletv
       to: 'unavailable'
       for:
@@ -144,8 +389,8 @@
         minutes: 3
         seconds: 0
 
-  action:
-    - service: homeassistant.turn_off
+  actions:
+    - action: homeassistant.turn_off
       entity_id: input_boolean.watching_plex
 
         ##########################################################
@@ -155,15 +400,15 @@
 - alias: Media - Late Night TV Watching Lights On before Midnight
   id: 'media_late_night_tv_watching_lights_on_before_midnight'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'paused'
       for:
         hours: 0
         minutes: 0
         seconds: 30
-    - platform: state
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'idle'
       for:
@@ -171,7 +416,7 @@
         minutes: 0
         seconds: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -187,40 +432,59 @@
       entity_id: input_boolean.watching_plex
       state: 'off'
     - condition: state
-      entity_id: switch.living_room_tv_watch_tv
-      state: 'on'
+      entity_id: select.living_room_tv_activities
+      state: "Watch TV"
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.living_room_lamps
       data:
        transition: 5
-       color_temp: 447
+       color_temp: 370
        brightness_pct: 100
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.media_center_lighting
       data:
        transition: 5
        brightness_pct: 100
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.hallway_light
       data:
        brightness_pct: 2
-    - service: light.turn_on
-      entity_id:
-        - light.dining_room_table
-        - light.kitchen_sink
-        - light.kitchen_cabinets
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.dining_room_table
       data:
        brightness_pct: 2
-    - service: light.turn_on
-      entity_id:
-        - light.bathroom_vanity
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.kitchen_sink
+      data:
+       brightness_pct: 2
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.kitchen_cabinets
+      data:
+       brightness_pct: 2
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.bathroom_vanity
       data:
        brightness_pct: 30
-    - service: light.turn_on
-      entity_id:
-        - light.globe
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.globe
       data:
        transition: 5
        brightness_pct: 65
@@ -232,15 +496,15 @@
 - alias: Media - Late Night TV Watching Lights On after Midnight
   id: 'media_late_night_tv_watching_lights_on_after_midnight'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'paused'
       for:
         hours: 0
         minutes: 0
         seconds: 30
-    - platform: state
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'idle'
       for:
@@ -248,7 +512,7 @@
         minutes: 0
         seconds: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -265,40 +529,59 @@
       entity_id: input_boolean.watching_plex
       state: 'off'
     - condition: state
-      entity_id: switch.living_room_tv_watch_tv
-      state: 'on'
+      entity_id: select.living_room_tv_activities
+      state: "Watch TV"
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: light.turn_on
+  actions:
+    - action: light.turn_on
       entity_id: light.living_room_lamps
       data:
        transition: 5
-       color_temp: 447
+       color_temp: 370
        brightness_pct: 100
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.media_center_lighting
       data:
        transition: 5
        brightness_pct: 100
-    - service: light.turn_on
+    - action: light.turn_on
       entity_id: light.hallway_light
       data:
        brightness_pct: 2
-    - service: light.turn_on
-      entity_id:
-        - light.dining_room_table
-        - light.kitchen_sink
-        - light.kitchen_cabinets
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.dining_room_table
       data:
        brightness_pct: 2
-    - service: light.turn_on
-      entity_id:
-        - light.bathroom_vanity
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.kitchen_sink
+      data:
+       brightness_pct: 2
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.kitchen_cabinets
+      data:
+       brightness_pct: 2
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.bathroom_vanity
       data:
        brightness_pct: 30
-    - service: light.turn_on
-      entity_id:
-        - light.globe
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.globe
       data:
        transition: 5
        brightness_pct: 65
@@ -310,8 +593,8 @@
 - alias: Media - Late Night TV Watching Lights Off after Midnight
   id: 'media_late_night_tv_watching_lights_off_after_midnight'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'playing'
       for:
@@ -319,7 +602,7 @@
         minutes: 0
         seconds: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: person.USER1
       state: 'home'
@@ -339,29 +622,86 @@
       entity_id: input_boolean.watching_plex
       state: 'off'
     - condition: state
-      entity_id: switch.living_room_tv_watch_tv
-      state: 'on'
+      entity_id: select.living_room_tv_activities
+      state: "Watch TV"
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.google.ios.youtube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_name
+        state: "YouTube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.apple.TVPhotos"
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
       data:
        transition: 10
-    - service: light.turn_off
-      entity_id:
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
-    - delay: '00:00:20' 
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_east
+    - delay: '00:00:05'
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_west
+    - delay: '00:00:15' 
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
 
         ##########################################################
         ## Late Night TV Watching before Midnight Lights Off
@@ -370,8 +710,8 @@
 - alias: Media - Late Night TV Watching Lights Off before Midnight
   id: 'media_late_night_tv_watching_lights_off_before_midnight'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.living_room_apple_tv
       to: 'playing'
       for:
@@ -379,7 +719,7 @@
         minutes: 0
         seconds: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: person.USER1
       state: 'home'
@@ -398,29 +738,86 @@
       entity_id: input_boolean.watching_plex
       state: 'off'
     - condition: state
-      entity_id: switch.living_room_tv_watch_tv
-      state: 'on'
+      entity_id: select.living_room_tv_activities
+      state: "Watch TV"
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.google.ios.youtube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_name
+        state: "YouTube"
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: media_player.living_room_apple_tv
+        attribute: app_id
+        state: "com.apple.TVPhotos"
+    - condition: state
+      entity_id: input_boolean.living_room_guest
+      state: 'off'
 
-  action:
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
       data:
        transition: 10
-    - service: light.turn_off
-      entity_id:
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
-    - delay: '00:00:20' 
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lights
-        - light.dining_room_lights
-        - light.kitchen_lights
-        - light.bathroom_lights
-        - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_east
+    - delay: '00:00:05'
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_west
+    - delay: '00:00:15' 
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_accent_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.dining_room_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.bathroom_lights
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.hallway_light
 
         ##########################################################
         ## Living Room TV Turn Off Harmony Activity if TV Off
@@ -429,8 +826,8 @@
 - alias: Media - Living Room TV Turn Off Harmony Activity if TV Off
   id: 'media_living_room_tv_turn_off_harmony_activity_if_tv_off'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.living_room_tv
       to: 'off'
       for:
@@ -438,18 +835,18 @@
         minutes: 1
         seconds: 0
 
-  condition:
+  conditions:
     - condition: not
       conditions:
       - condition: state
         entity_id: select.living_room_tv_activities
-        state: 'PowerOff'
+        state: 'power_off'
 
-  action:
-    - service: select.select_option
+  actions:
+    - action: select.select_option
       data:
         entity_id: select.living_room_tv_activities
-        option: "PowerOff"      
+        option: "power_off"      
 
         ##########################################################
         ## Bedroom TV Turn Off Harmony Activity if TV Off
@@ -458,8 +855,8 @@
 - alias: Media - Bedroom TV Turn Off Harmony Activity if TV Off
   id: 'media_bedroom_tv_turn_off_harmony_activity_if_tv_off'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.bedroom_tv
       to: 'off'
       for:
@@ -467,18 +864,18 @@
         minutes: 1
         seconds: 0
 
-  condition:
+  conditions:
     - condition: not
       conditions:
       - condition: state
         entity_id: select.bedroom_tv_activities
-        state: 'PowerOff'
+        state: 'power_off'
 
-  action:
-    - service: select.select_option
+  actions:
+    - action: select.select_option
       data:
         entity_id: select.bedroom_tv_activities
-        option: "PowerOff"
+        option: "power_off"
 
       #################################################################
       ## Reset Sonos Every Morning
@@ -487,58 +884,58 @@
 - alias: Media - Reset Sonos Every Morning
   id: 'media_reset_sonos_every_morning'
 
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: '05:00:00'
 
-  action:
-    - service: media_player.unjoin
-      entity_id:
-        - media_player.sonos_surround_sound
-        - media_player.sonos_living_room
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
-        - media_player.sonos_bedroom
-        - media_player.sonos_bedroom_closet
-        - media_player.sonos_USER1s_office
-        - media_player.sonos_USER1s_office_move
-        - media_player.sonos_USER2s_office
-        - media_player.sonos_move
-        - media_player.sonos_craft_room
-        - media_player.sonos_fitness_room
-        - media_player.sonos_backyard_patio
-        - media_player.sonos_roam
-    - service: media_player.clear_playlist
-      entity_id:
-        - media_player.sonos_surround_sound
-        - media_player.sonos_living_room
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
-        - media_player.sonos_bedroom
-        - media_player.sonos_bedroom_closet
-        - media_player.sonos_USER1s_office
-        - media_player.sonos_USER1s_office_move
-        - media_player.sonos_USER2s_office
-        - media_player.sonos_move
-        - media_player.sonos_craft_room
-        - media_player.sonos_fitness_room
-        - media_player.sonos_backyard_patio
-        - media_player.sonos_roam
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.pop_music
-        - input_boolean.jazz_music
-        - input_boolean.chill_music
-        - input_boolean.electronic_music
-        - input_boolean.classical_music
-        - input_boolean.group_all_sonos
-    - service: input_select.select_option
+  actions:
+    - action: media_player.unjoin
+      target:
+        entity_id:
+          - media_player.sonos_surround_sound
+          - media_player.sonos_living_room
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
+          - media_player.sonos_bedroom
+          - media_player.sonos_bedroom_closet
+          - media_player.sonos_USER1s_office
+          - media_player.sonos_USER2s_office
+          - media_player.sonos_move
+          - media_player.sonos_craft_room
+          - media_player.sonos_fitness_room
+          - media_player.sonos_backyard_patio
+          - media_player.sonos_roam
+    - action: media_player.clear_playlist
+      target:
+        entity_id:
+          - media_player.sonos_surround_sound
+          - media_player.sonos_living_room
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
+          - media_player.sonos_bedroom
+          - media_player.sonos_bedroom_closet
+          - media_player.sonos_USER1s_office
+          - media_player.sonos_USER2s_office
+          - media_player.sonos_move
+          - media_player.sonos_craft_room
+          - media_player.sonos_fitness_room
+          - media_player.sonos_backyard_patio
+          - media_player.sonos_roam
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.pop_music
+          - input_boolean.jazz_music
+          - input_boolean.chill_music
+          - input_boolean.classical_music
+          - input_boolean.group_all_sonos
+    - action: input_select.select_option
       data:
         entity_id: input_select.sonos
         option: "None"
-    - service: switch.turn_off
+    - action: switch.turn_off
       data:
         entity_id: 
           - switch.sonos_bedroom_night_sound
@@ -552,19 +949,19 @@
 - alias: Media - Group All Sonos
   id: 'media_group_all_sonos'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.group_all_sonos
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.join
+  actions:
+    - action: media_player.join
       data:
         entity_id:
           - media_player.sonos_living_room
@@ -577,7 +974,6 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_craft_room
           - media_player.sonos_fitness_room
@@ -590,19 +986,19 @@
 - alias: Media - Ugroup All Sonos
   id: 'media_ungroup_all_sonos'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.group_all_sonos
       from: 'on'
       to: 'off'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.unjoin
+  actions:
+    - action: media_player.unjoin
       data:
         entity_id:
           - media_player.sonos_living_room
@@ -613,7 +1009,6 @@
           - media_player.sonos_bedroom
           - media_player.sonos_bedroom_closet
           - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
           - media_player.sonos_USER2s_office
           - media_player.sonos_craft_room
           - media_player.sonos_fitness_room
@@ -626,53 +1021,52 @@
 - alias: Media - Play Pop Music
   id: 'media_play_pop_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.pop_music
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.join
+  actions:
+    - action: media_player.join
       data:
         group_members:
           - media_player.sonos_living_room
-          - media_player.sonos_surround_sound
           - media_player.sonos_dining_room
           - media_player.sonos_kitchen
           - media_player.sonos_bathroom
       target:
         entity_id:
           - media_player.sonos_living_room
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_living_room
-        - media_player.sonos_surround_sound
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
+    - delay: '00:00:05'
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_living_room
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
       data:
-        volume_level: 0.4
-    - delay: '00:00:01'
-    - service: media_player.select_source
+        volume_level: 0.2
+    - delay: '00:00:05'
+    - action: media_player.select_source
       data:
-        source: 'Pure Pop'
+        source: 'Pop Station'
       target:
         entity_id: 
           - media_player.sonos_living_room
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.classical_music
-        - input_boolean.jazz_music
-        - input_boolean.chill_music
-        - input_boolean.electronic_music
-    - service: input_select.select_option
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.classical_music
+          - input_boolean.jazz_music
+          - input_boolean.chill_music
+    - action: input_select.select_option
       data:
         entity_id: input_select.sonos
         option: "Pop Music"
@@ -684,19 +1078,19 @@
 - alias: Media - Play Jazz Music
   id: 'media_play_jazz_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.jazz_music
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.join
+  actions:
+    - action: media_player.join
       data:
         group_members:
           - media_player.sonos_living_room
@@ -707,30 +1101,31 @@
       target:
         entity_id:
           - media_player.sonos_living_room
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_living_room
-        - media_player.sonos_surround_sound
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
+    - delay: '00:00:05'
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_living_room
+          - media_player.sonos_surround_sound
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
       data:
-        volume_level: 0.04
-    - delay: '00:00:01'
-    - service: media_player.select_source
+        volume_level: 0.03
+    - delay: '00:00:05'
+    - action: media_player.select_source
       data:
         source: 'Smooth Jazz'
       target:
         entity_id: 
           - media_player.sonos_living_room
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.classical_music
-        - input_boolean.pop_music
-        - input_boolean.chill_music
-        - input_boolean.electronic_music
-    - service: input_select.select_option
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.classical_music
+          - input_boolean.pop_music
+          - input_boolean.chill_music
+    - action: input_select.select_option
       data:
         entity_id: input_select.sonos
         option: "Jazz Music"
@@ -742,19 +1137,19 @@
 - alias: Media - Play Classical Music
   id: 'media_play_classical_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.classical_music
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.join
+  actions:
+    - action: media_player.join
       data:
         group_members:
           - media_player.sonos_living_room
@@ -765,91 +1160,34 @@
       target:
         entity_id:
           - media_player.sonos_living_room
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_living_room
-        - media_player.sonos_surround_sound
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
+    - delay: '00:00:05'
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_living_room
+          - media_player.sonos_surround_sound
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
       data:
-        volume_level: 0.04
-    - delay: '00:00:01'
-    - service: media_player.select_source
+        volume_level: 0.03
+    - delay: '00:00:05'
+    - action: media_player.select_source
       data:
         source: 'Classical'
       target:
         entity_id: 
           - media_player.sonos_living_room
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.jazz_music
-        - input_boolean.pop_music
-        - input_boolean.chill_music
-        - input_boolean.electronic_music
-    - service: input_select.select_option
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.jazz_music
+          - input_boolean.pop_music
+          - input_boolean.chill_music
+    - action: input_select.select_option
       data:
         entity_id: input_select.sonos
         option: "Classical Music"
-
-        ##########################################################
-        ## Play Electronic Music
-        ##########################################################
-
-- alias: Media - Play Electronic Music
-  id: 'media_play_electronic_music'
-
-  trigger:
-    - platform: state
-      entity_id: input_boolean.electronic_music
-      from: 'off'
-      to: 'on'
-
-  condition:
-    - condition: state
-      entity_id: group.household
-      state: 'home'
-
-  action:
-    - service: media_player.join
-      data:
-        group_members:
-          - media_player.sonos_living_room
-          - media_player.sonos_surround_sound
-          - media_player.sonos_dining_room
-          - media_player.sonos_kitchen
-          - media_player.sonos_bathroom
-      target:
-        entity_id:
-          - media_player.sonos_living_room
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_living_room
-        - media_player.sonos_surround_sound
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
-      data:
-        volume_level: 0.04
-    - delay: '00:00:01'
-    - service: media_player.select_source
-      data:
-        source: 'Atmospheric Electronic'
-      target:
-        entity_id: 
-          - media_player.sonos_living_room
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.jazz_music
-        - input_boolean.pop_music
-        - input_boolean.chill_music
-        - input_boolean.classical_music
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.sonos
-        option: "Electronic Music"
 
         ##########################################################
         ## Play Chill Music
@@ -858,19 +1196,19 @@
 - alias: Media - Play Chill Music
   id: 'media_play_chill_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.chill_music
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
 
-  action:
-    - service: media_player.join
+  actions:
+    - action: media_player.join
       data:
         group_members:
           - media_player.sonos_living_room
@@ -881,30 +1219,31 @@
       target:
         entity_id:
           - media_player.sonos_living_room
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_living_room
-        - media_player.sonos_surround_sound
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
+    - delay: '00:00:05'
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_living_room
+          - media_player.sonos_surround_sound
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
       data:
-        volume_level: 0.04
-    - delay: '00:00:01'
-    - service: media_player.select_source
+        volume_level: 0.03
+    - delay: '00:00:05'
+    - action: media_player.select_source
       data:
         source: 'Chill'
       target:
         entity_id: 
           - media_player.sonos_living_room
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.jazz_music
-        - input_boolean.electronic_music
-        - input_boolean.pop_music
-        - input_boolean.classical_music
-    - service: input_select.select_option
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.jazz_music
+          - input_boolean.pop_music
+          - input_boolean.classical_music
+    - action: input_select.select_option
       data:
         entity_id: input_select.sonos
         option: "Chill Music"
@@ -916,35 +1255,26 @@
 - alias: Media - Play Music USER1's Office
   id: 'media_play__music_USER1_office'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.USER1_s_office_music
       from: 'off'
       to: 'on'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: person.USER1
       state: 'home'
 
-  action:
-    - service: media_player.join
-      data:
-        group_members:
-          - media_player.sonos_USER1s_office
-          - media_player.sonos_USER1s_office_move
+  actions:
+    - action: media_player.volume_set
       target:
         entity_id:
           - media_player.sonos_USER1s_office
-    - delay: '00:00:02'
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_USER1s_office
-        - media_player.sonos_USER1s_office_move
       data:
-        volume_level: 0.07
+        volume_level: 0.1
     - delay: '00:00:01'
-    - service: media_player.select_source
+    - action: media_player.select_source
       data:
         source: 'Chill'
       target:
@@ -958,17 +1288,17 @@
 - alias: Media - Stop Playing Music USER1's Office
   id: 'media_stop_playing_music_USER1_office'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.USER1_s_office_music
       from: 'on'
       to: 'off'
 
-  action:
-    - service: media_player.media_stop
-      entity_id:
-        - media_player.sonos_USER1s_office
-        - media_player.sonos_USER1s_office_move
+  actions:
+    - action: media_player.media_stop
+      target:
+        entity_id:
+          - media_player.sonos_USER1s_office
 
         ##########################################################
         ## Sonos start activity from input select Pop Music
@@ -977,13 +1307,13 @@
 - alias: Media - Sonos start activity from input select Pop Music
   id: 'media_sonos_start_activity_from_input_select_pop_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.sonos
       to: 'Pop Music'
 
-  action:
-    - service: homeassistant.turn_on
+  actions:
+    - action: homeassistant.turn_on
       entity_id: input_boolean.pop_music
 
         ##########################################################
@@ -993,13 +1323,13 @@
 - alias: Media - Sonos start activity from input select Jazz Music
   id: 'media_sonos_start_activity_from_input_select_jazz_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.sonos
       to: 'Jazz Music'
 
-  action:
-    - service: homeassistant.turn_on
+  actions:
+    - action: homeassistant.turn_on
       entity_id: input_boolean.jazz_music
 
         ##########################################################
@@ -1009,30 +1339,14 @@
 - alias: Media - Sonos start activity from input select Chill Music
   id: 'media_sonos_start_activity_from_input_select_chill_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.sonos
       to: 'Chill Music'
 
-  action:
-    - service: homeassistant.turn_on
+  actions:
+    - action: homeassistant.turn_on
       entity_id: input_boolean.chill_music
-
-        ##########################################################
-        ## Sonos start activity from input select Electronic Music
-        ##########################################################
-
-- alias: Media - Sonos start activity from input select Electronic Music
-  id: 'media_sonos_start_activity_from_input_select_electronic_music'
-
-  trigger:
-    - platform: state
-      entity_id: input_select.sonos
-      to: 'Electronic Music'
-
-  action:
-    - service: homeassistant.turn_on
-      entity_id: input_boolean.electronic_music
 
         ##########################################################
         ## Sonos start activity from input select Classical Music
@@ -1041,13 +1355,13 @@
 - alias: Media - Sonos start activity from input select Classical Music
   id: 'media_sonos_start_activity_from_input_select_classical_music'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.sonos
       to: 'Classical Music'
 
-  action:
-    - service: homeassistant.turn_on
+  actions:
+    - action: homeassistant.turn_on
       entity_id: input_boolean.classical_music
 
         ##########################################################
@@ -1057,30 +1371,31 @@
 - alias: Media - Sonos stop activity from input select Off
   id: 'media_sonos_stop_activity_from_input_select_off'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.sonos
       to: 'None'
 
-  action:
-    - service: media_player.media_stop
-      entity_id:
-        - media_player.sonos_surround_sound
-        - media_player.sonos_living_room
-        - media_player.sonos_dining_room
-        - media_player.sonos_kitchen
-        - media_player.sonos_bathroom
-        - media_player.sonos_USER1s_office
-        - media_player.sonos_USER2s_office
-        - media_player.sonos_move
-    - service: homeassistant.turn_off
-      entity_id:
-        - input_boolean.pop_music
-        - input_boolean.jazz_music
-        - input_boolean.chill_music
-        - input_boolean.electronic_music
-        - input_boolean.classical_music
-        - input_boolean.group_all_sonos
+  actions:
+    - action: media_player.media_stop
+      target:
+        entity_id:
+          - media_player.sonos_surround_sound
+          - media_player.sonos_living_room
+          - media_player.sonos_dining_room
+          - media_player.sonos_kitchen
+          - media_player.sonos_bathroom
+          - media_player.sonos_USER1s_office
+          - media_player.sonos_USER2s_office
+          - media_player.sonos_move
+    - action: homeassistant.turn_off
+      target:
+        entity_id:
+          - input_boolean.pop_music
+          - input_boolean.jazz_music
+          - input_boolean.chill_music
+          - input_boolean.classical_music
+          - input_boolean.group_all_sonos
 
         ##########################################################
         ## Turn Down Backyard Sonos at 10p
@@ -1089,14 +1404,15 @@
 - alias: Media - Turn Down Backyard Sonos at 10p
   id: 'media_turn_down_backyard_sonos_at_10p'
 
-  trigger:
-   - platform: time
+  triggers:
+   - trigger: time
      at: '22:00:00'
 
-  action:
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_backyard_patio
+  actions:
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_backyard_patio
       data:
         volume_level: 0.3
 
@@ -1107,14 +1423,21 @@
 - alias: Media - Turn Off Backyard Sonos at Midnight
   id: 'media_turn_off_backyard_sonos_at_midnight'
 
-  trigger:
-   - platform: time
+  triggers:
+   - trigger: time
      at: '23:59:00'
 
-  action:
-    - service: media_player.media_stop
-      entity_id:
-        - media_player.sonos_backyard_patio
+  actions:
+    - action: media_player.media_stop
+      target:
+        entity_id:
+          - media_player.sonos_backyard_patio
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_backyard_patio
+      data:
+        volume_level: 0
 
         ##########################################################
         ## Reset Backyard Sonos Volume if after 10p
@@ -1123,22 +1446,22 @@
 - alias: Media - Reset Backyard Sonos Volume after 10p
   id: 'media_reset_backyard_sonos_volume_after_10p'
 
-  trigger:
-   - platform: template
+  triggers:
+   - trigger: template
      value_template: '{{ states.media_player.sonos_backyard_patio.attributes.volume_level | int > 0.3 }}'
 
-  condition:
+  conditions:
     - condition: time
       after: '22:00:00'
       before: '23:59:00'
 
-  action:
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_backyard_patio
+  actions:
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_backyard_patio
       data:
         volume_level: 0.3
-
 
         ##########################################################
         ## Reset Backyard Sonos Volume if after Midnight
@@ -1147,21 +1470,22 @@
 - alias: Media - Reset Backyard Sonos Volume after Midnight
   id: 'media_reset_backyard_sonos_volume_after_midnight'
 
-  trigger:
-   - platform: template
+  triggers:
+   - trigger: template
      value_template: '{{ states.media_player.sonos_backyard_patio.attributes.volume_level | int > 0.3 }}'
 
-  condition:
+  conditions:
     - condition: time
       after: '00:00:00'
       before: '06:00:00'
 
-  action:
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.sonos_backyard_patio
+  actions:
+    - action: media_player.volume_set
+      target:
+        entity_id:
+          - media_player.sonos_backyard_patio
       data:
-        volume_level: 0.3
+        volume_level: 0
 
         ##########################################################
         ## Turn on Bedroom Sonos Night Sound Weeknights
@@ -1170,11 +1494,11 @@
 - alias: Media - Turn on Bedroom Sonos Night Sound Weeknights
   id: 'media_turn_on_bedroom_sonos_night_sound_weeknights'
 
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: '22:00:00'
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
@@ -1189,10 +1513,11 @@
         - wed
         - thu
 
-  action:
-    - service: switch.turn_on
-      entity_id:
-        - switch.sonos_bedroom_night_sound
+  actions:
+    - action: switch.turn_on
+      target:
+        entity_id:
+          - switch.sonos_bedroom_night_sound
 
         ##########################################################
         ## Fix Bedroom TV Sound Output Power On
@@ -1201,8 +1526,8 @@
 - alias: Media - Fix Bedroom TV Sound Output Power On
   id: 'media_fix_bedroom_tv_sound_output_power_on'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.bedroom_tv
       to: 'on'
       for:
@@ -1210,8 +1535,8 @@
         minutes: 0
         seconds: 15
 
-  action:
-    - service: webostv.select_sound_output
+  actions:
+    - action: webostv.select_sound_output
       data:
         entity_id: media_player.bedroom_tv
         sound_output: external_arc
@@ -1220,11 +1545,11 @@
         ## Fix Bedroom TV Sound Output When Changed
         ##########################################################
 
-- alias: Media - ix Bedroom TV Sound Output When Changed
+- alias: Media - Fix Bedroom TV Sound Output When Changed
   id: 'media_fix_bedroom_tv_sound_output_when_changed'
 
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: media_player.bedroom_tv
       attribute: sound_output
       from: external_arc
@@ -1233,15 +1558,65 @@
         minutes: 0
         seconds: 15
 
-  condition:
+  conditions:
     - condition: state
       entity_id: media_player.bedroom_tv
       state: 'on'
 
-  action:
-    - service: webostv.select_sound_output
+  actions:
+    - action: webostv.select_sound_output
       data:
         entity_id: media_player.bedroom_tv
+        sound_output: external_arc
+
+        ##########################################################
+        ## Fix Living Room TV Sound Output Power On
+        ##########################################################
+
+- alias: Media - Fix Living Room TV Sound Output Power On
+  id: 'media_fix_living_room_tv_sound_output_power_on'
+
+  triggers:
+    - trigger: state
+      entity_id: media_player.living_room_tv
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 15
+
+  actions:
+    - action: webostv.select_sound_output
+      data:
+        entity_id: media_player.living_room_tv
+        sound_output: external_arc
+
+        ##########################################################
+        ## Fix Living Room TV Sound Output When Changed
+        ##########################################################
+
+- alias: Media - Fix Living Room TV Sound Output When Changed
+  id: 'media_fix_living_room_tv_sound_output_when_changed'
+
+  triggers:
+    - trigger: state
+      entity_id: media_player.living_room_tv
+      attribute: sound_output
+      from: external_arc
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 15
+
+  conditions:
+    - condition: state
+      entity_id: media_player.living_room_tv
+      state: 'on'
+
+  actions:
+    - action: webostv.select_sound_output
+      data:
+        entity_id: media_player.living_room_tv
         sound_output: external_arc
 
         ##########################################################
@@ -1251,27 +1626,25 @@
 - alias: Media - Turn off Living Room Lights When Playing Xbox
   id: 'media_turn_off_living_room_lights_when_playing_xbox'
 
-  trigger:
-    - platform: state
-      entity_id: switch.living_room_tv_play_xbox
-      to: 'on'
+  triggers:
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      to: "Play Xbox"
       for:
         hours: 0
         minutes: 2
         seconds: 0
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
     - condition: state
       entity_id: person.USER1
       state: 'home'
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: group.friends_and_family
-        state: 'home'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -1279,12 +1652,20 @@
       after: '21:00:00'
       before: '05:00:00'
 
-  action:
-    - service: light.turn_off
-      entity_id:
-        - light.living_room_lamps
-        - light.living_room_ceiling_east
-        - light.living_room_ceiling_west
+  actions:
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_lamps
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_east
+    - delay: '00:00:05' 
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.living_room_ceiling_west
 
         ##########################################################
         ## Turn on Living Room Lights When Done Playing Xbox
@@ -1293,27 +1674,25 @@
 - alias: Media - Turn on Living Room Lights When Done Playing Xbox
   id: 'media_turn_on_living_room_lights_when_done_playing_xbox'
 
-  trigger:
-    - platform: state
-      entity_id: switch.living_room_tv_play_xbox
-      to: 'off'
+  triggers:
+    - trigger: state
+      entity_id: select.living_room_tv_activities
+      from: "Play Xbox"
       for:
         hours: 0
         minutes: 0
         seconds: 30
 
-  condition:
+  conditions:
     - condition: state
       entity_id: group.household
       state: 'home'
     - condition: state
       entity_id: person.USER1
       state: 'home'
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: group.friends_and_family
-        state: 'home'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
@@ -1321,7 +1700,38 @@
       after: '21:00:00'
       before: '05:00:00'
 
-  action:
-    - service: light.turn_on
-      entity_id:
-        - light.living_room_accent_lights
+  actions:
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.living_room_accent_lights
+
+        ##########################################################
+        ## Set Living Room Remote Input when Xbox On
+        ##########################################################
+
+- alias: Media - Set Living Room Remote Input when Xbox On
+  id: 'media_turn_set_living_room_remote_input_when_xbox_on'
+
+  triggers:
+    - trigger: state
+      entity_id: media_player.living_room_xbox
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+
+  conditions:
+    - condition: state
+      entity_id: group.household
+      state: 'home'
+    - condition: state
+      entity_id: media_player.living_room_tv
+      state: 'on'
+
+  actions:
+    - action: select.select_option
+      data:
+        entity_id: select.living_room_tv_activities
+        option: "Play Xbox"

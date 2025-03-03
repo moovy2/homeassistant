@@ -3,46 +3,31 @@
 #################################################################
 
 homeassistant:
+  auth_providers:
+    - type: homeassistant
+    #- type: trusted_networks
+    #  trusted_networks:
+    #    - REDACTED.0/24
   customize: !include customize.yaml
 default_config:
-stream:
-  ll_hls: false
 http:
+  use_x_forREDACTEDed_for: true
+  trusted_proxies:
+    - REDACTED09.3
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
-  ip_ban_enabled: true
+  ip_ban_enabled: false
+go2rtc:
+  debug_ui: false
 #  login_attempts_threshold: 10
 #logger:
 #  default: warning
 #  logs:
-#    pyatv: debug
-#    custom_components.apple_tv: debug
+#    homeassistant.components.zha: debug
 
 #################################################################
 ## Components
 #################################################################
-
-lutron_caseta_pro:
-  bridges:
-    - host: lutron.network.REDACTED
-      mac: !secret lutron_caseta_pro_mac
-      switch: [ 17, 22 ]
-
-wemo:
-  discovery: true
-  static:
-    - REDACTED.220
-    - REDACTED.221
-    - REDACTED.222
-    - REDACTED.223
-    - REDACTED.225
-    - REDACTED.226
-
-weather:
-  - platform: darksky
-    api_key: !secret darksky_api_key
-    mode: daily
-    name: "REDACTED, MO"
 
 alarm_control_panel:
   - platform: manual
@@ -70,6 +55,42 @@ route53:
   records:
     - home
 
+weather:
+  - platform: template
+    name: "REDACTED, MO"
+    unique_id: weather_REDACTED
+    condition_template: "{{ states('sensor.weather_condition_REDACTED') }}"
+    temperature_template: "{{ state_attr('weather.REDACTED_ecobee', 'temperature') }}"
+    humidity_template: "{{ state_attr('weather.REDACTED_ecobee', 'humidity') }}"
+    forecast_daily_template: "{{ state_attr('sensor.REDACTED_daily_forecast', 'forecast') }}"
+    attribution_template: "{{ state_attr('weather.REDACTED_ecobee', 'attribution') }}"
+    pressure_template: "{{ state_attr('weather.REDACTED_ecobee', 'pressure') }}"
+    wind_speed_template: "{{ state_attr('weather.REDACTED_ecobee', 'wind_speed') }}"
+    wind_bearing_template: "{{ state_attr('weather.REDACTED_ecobee', 'wind_bearing') }}"
+    visibility_template: "{{ state_attr('weather.REDACTED_ecobee', 'visibility') }}"
+
+rest_command:
+  pihole_login:
+    url: '{{ api_url }}/auth'
+    method: POST
+    payload: '{ "password" : "{{ password }}" }'
+    content_type:  'application/json; charset=utf-8'
+    verify_ssl: false
+  pihole_logout:
+    url: '{{ api_url }}/auth'
+    method: DELETE
+    verify_ssl: false
+    headers:
+      sid: "{{ sid }}"
+  pihole_set_blocking:
+    url: '{{ api_url }}/dns/blocking'
+    method: POST
+    payload: '{ "blocking" : {{ blocking }}, "timer" : {{ timer }} }'
+    content_type:  'application/json; charset=utf-8'
+    verify_ssl: false
+    headers:
+      sid: "{{ sid }}"
+
 #################################################################
 ## Notifications
 #################################################################
@@ -80,28 +101,25 @@ notify:
     services:
       - service: mobile_app_REDACTEDs_iphone
       - service: mobile_app_REDACTED_s_ipad
-      - service: mobile_app_REDACTEDs_macbook_pro
+      - service: mobile_app_REDACTED_s_macbook_pro
 
   - platform: group
     name: USER2_devices
     services:
-      - service: mobile_app_USER2_s_iphone
-      - service: mobile_app_USER2_s_ipad
+      - service: mobile_app_USER2s_iphone
+      - service: mobile_app_USER2s_ipad
 
 #################################################################
 ## Includes
 #################################################################
 
-automation: !include_dir_merge_list automation
-recorder: !include recorder.yaml
-logbook: !include logbook.yaml
-history: !include history.yaml
+automation manual: !include_dir_merge_list automation/
+automation ui: !include automations.yaml
 group: !include groups.yaml
-sensor: !include sensors.yaml
-binary_sensor: !include binary_sensor.yaml
 script: !include scripts.yaml
 homekit: !include homekit.yaml
-switch: !include switch.yaml
 emulated_hue: !include emulated_hue.yaml
-cloud: !include cloud.yaml
 template: !include template.yaml
+command_line: !include command_line.yaml
+python_script:
+ios: !include ios.yaml
